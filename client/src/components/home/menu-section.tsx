@@ -155,7 +155,7 @@ export function MenuSection() {
         </p>
       )}
 
-      <div className="mx-auto mt-2 flex max-w-6xl flex-col gap-6 px-3 sm:px-4 md:mt-4 md:gap-8 md:px-6">
+      <div className="mx-auto mt-2 flex w-full max-w-6xl flex-col gap-6 px-3 sm:px-4 md:mt-4 md:gap-8 md:px-6">
         {blocks.map(({ category, products: sectionProducts }) => (
           <div
             key={category.id}
@@ -170,8 +170,8 @@ export function MenuSection() {
               <CheckerboardAccent className="h-4 w-4 md:h-5 md:w-5" />
             </div>
 
-            {/* Always 2 columns → ~4 cards in view, readable size */}
-            <div className="mx-auto grid max-w-3xl grid-cols-2 gap-2.5 sm:gap-3 md:gap-3.5">
+            {/* Full-bleed 2-col like Sugar Latte — 4 large cards in view */}
+            <div className="grid w-full grid-cols-2 gap-3 sm:gap-4 md:gap-5">
               {sectionProducts.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}

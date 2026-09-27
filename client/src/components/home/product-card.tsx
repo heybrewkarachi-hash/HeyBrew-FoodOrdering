@@ -11,7 +11,10 @@ type Props = {
   className?: string;
 };
 
-/** Compact Sugar Latte–style card: text left, image right — sized for 2×2 (4 on screen) */
+/**
+ * Sugar Latte–style product tile:
+ * full-width 2-col grid, large horizontal card (text ~60% / image ~40%).
+ */
 export function ProductCard({ product, className }: Props) {
   const { openProduct } = useUi();
 
@@ -20,32 +23,35 @@ export function ProductCard({ product, className }: Props) {
       type="button"
       onClick={() => openProduct(product)}
       className={cn(
-        "flex w-full items-stretch gap-3 rounded-[1.15rem] bg-white p-3 text-left shadow-[0_2px_12px_rgba(60,30,24,0.07)] transition hover:shadow-[0_4px_18px_rgba(60,30,24,0.11)] active:scale-[0.99] sm:gap-3.5 sm:rounded-2xl sm:p-3.5",
+        "flex w-full min-h-[8.75rem] items-stretch gap-3 rounded-2xl bg-white p-3 text-left",
+        "shadow-[0_2px_14px_rgba(60,30,24,0.08)] transition",
+        "hover:shadow-[0_6px_20px_rgba(60,30,24,0.12)] active:scale-[0.995]",
+        "sm:min-h-[10rem] sm:gap-4 sm:rounded-[1.25rem] sm:p-4",
         className
       )}
       aria-label={`${product.name}, ${formatRs(product.basePriceMinor)}`}
     >
-      <div className="flex min-w-0 flex-1 flex-col justify-between gap-1.5 py-0.5">
-        <div className="space-y-1">
-          <h3 className="font-display text-[15px] font-extrabold leading-snug text-espresso line-clamp-2 sm:text-base">
+      <div className="flex min-w-0 flex-[1.35] flex-col justify-between gap-2 py-0.5">
+        <div className="space-y-1.5">
+          <h3 className="font-display text-base font-extrabold leading-tight text-espresso line-clamp-2 sm:text-lg">
             {product.name}
           </h3>
-          <p className="line-clamp-2 text-[11px] leading-snug text-muted sm:text-xs">
+          <p className="line-clamp-2 text-xs leading-snug text-muted sm:line-clamp-3 sm:text-sm">
             {product.description}
           </p>
         </div>
-        <p className="font-display text-[15px] font-extrabold text-espresso sm:text-base">
+        <p className="font-display text-base font-extrabold text-espresso sm:text-lg">
           {formatRs(product.basePriceMinor)}
         </p>
       </div>
 
-      <div className="relative h-[5.75rem] w-[5.75rem] shrink-0 overflow-hidden rounded-xl bg-surface sm:h-[6.5rem] sm:w-[6.5rem] sm:rounded-[1.05rem]">
+      <div className="relative aspect-square w-[42%] max-w-[9.5rem] shrink-0 self-center overflow-hidden rounded-2xl bg-surface sm:max-w-[11rem] sm:rounded-[1.15rem]">
         <Image
           src={product.imageUrl}
           alt=""
           fill
           className="object-cover"
-          sizes="(max-width: 640px) 92px, 104px"
+          sizes="(max-width: 640px) 42vw, 176px"
         />
       </div>
     </button>
