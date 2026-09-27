@@ -157,8 +157,8 @@ export function OrderingSetupModal() {
             className="h-12 w-12 object-contain sm:h-14 sm:w-14"
             priority
           />
-          <span className="font-display text-base font-extrabold tracking-tight text-espresso sm:text-lg">
-            HeyBrew.
+          <span className="relative top-1 font-display text-base font-extrabold leading-none tracking-tight text-black sm:top-1.5 sm:text-lg">
+            HeyBrew<span className="text-black">.</span>
           </span>
         </div>
       </div>
