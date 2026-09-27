@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { formatRs } from "@/lib/format";
 import type { Product } from "@/lib/types";
-import { IconPlus } from "@/components/ui/icons";
 import { useUi } from "@/context/ui-context";
 import { cn } from "@/lib/cn";
 
@@ -37,23 +36,20 @@ export function ProductCard({ product, layout = "grid" }: Props) {
             {formatRs(product.basePriceMinor)}
           </p>
         </button>
-        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl">
+        <button
+          type="button"
+          className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl"
+          aria-label={`View ${product.name}`}
+          onClick={() => openProduct(product)}
+        >
           <Image
             src={product.imageUrl}
-            alt="Temporary placeholder image"
+            alt=""
             fill
             className="object-cover"
             sizes="112px"
           />
-          <button
-            type="button"
-            className="absolute bottom-2 right-2 inline-flex h-11 w-11 items-center justify-center rounded-full bg-espresso text-cream shadow-soft"
-            aria-label={`Add ${product.name}`}
-            onClick={() => openProduct(product)}
-          >
-            <IconPlus />
-          </button>
-        </div>
+        </button>
       </article>
     );
   }
@@ -67,33 +63,27 @@ export function ProductCard({ product, layout = "grid" }: Props) {
       >
         <Image
           src={product.imageUrl}
-          alt="Temporary placeholder image"
+          alt=""
           fill
           className="object-cover transition duration-500 hover:scale-105"
           sizes="(max-width: 768px) 100vw, 33vw"
         />
       </button>
-      <div className="relative flex flex-1 flex-col gap-1 px-4 pb-4 pt-3 md:gap-1.5 md:px-4 md:pb-4 md:pt-3">
+      <button
+        type="button"
+        className="flex flex-1 flex-col gap-1 px-4 pb-4 pt-3 text-left md:gap-1.5 md:px-4 md:pb-4 md:pt-3"
+        onClick={() => openProduct(product)}
+      >
         <h3 className="font-display text-base font-extrabold text-espresso md:text-lg">
           {product.name}
         </h3>
         <p className="line-clamp-1 text-xs text-muted md:line-clamp-2 md:text-sm">
           {product.description}
         </p>
-        <div className="mt-1 flex items-center justify-between md:mt-2">
-          <p className="font-display text-base font-bold text-espresso">
-            {formatRs(product.basePriceMinor)}
-          </p>
-          <button
-            type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-espresso text-cream"
-            aria-label={`Add ${product.name}`}
-            onClick={() => openProduct(product)}
-          >
-            <IconPlus />
-          </button>
-        </div>
-      </div>
+        <p className="mt-1 font-display text-base font-bold text-espresso md:mt-2">
+          {formatRs(product.basePriceMinor)}
+        </p>
+      </button>
     </article>
   );
 }
