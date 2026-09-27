@@ -148,7 +148,7 @@ export function OrderingSetupModal() {
     >
       {/* Compact brand strip — one glance, no scroll */}
       <div className="flex shrink-0 items-center justify-center bg-espresso px-4 py-3.5">
-        <div className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 shadow-sm">
+        <div className="flex items-center gap-0.5 rounded-xl bg-white px-3 py-2 shadow-sm">
           <Image
             src="/brand/heybrew-logo-mark.png"
             alt="HeyBrew"
