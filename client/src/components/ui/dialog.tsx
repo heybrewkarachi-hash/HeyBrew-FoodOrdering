@@ -21,7 +21,7 @@ type DialogProps = {
   labelledBy?: string;
   /** hide title visually but keep for a11y */
   titleSrOnly?: boolean;
-  /** allow body scroll inside panel (default true). Set false for compact modals. */
+  /** @deprecated Body always allows overflow scroll without a visible bar */
   scrollBody?: boolean;
 };
 
@@ -34,7 +34,6 @@ export function Dialog({
   className,
   labelledBy,
   titleSrOnly,
-  scrollBody = true,
 }: DialogProps) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -129,6 +128,8 @@ export function Dialog({
         aria-labelledby={labelledBy || titleId}
         className={cn(
           "relative flex w-full max-w-md flex-col overflow-hidden bg-cream shadow-sheet",
+          // Prefer content height; only constrain on short viewports
+          variant === "modal" && "h-auto max-h-[min(92dvh,100%)]",
           panelMotion,
           className
         )}
@@ -146,7 +147,8 @@ export function Dialog({
         <div
           className={cn(
             "flex min-h-0 flex-1 flex-col",
-            scrollBody ? "overflow-y-auto no-scrollbar" : "overflow-hidden"
+            // Always allow scroll without a visible bar — never clip the CTA
+            "overflow-y-auto no-scrollbar overscroll-contain"
           )}
         >
           {children}
