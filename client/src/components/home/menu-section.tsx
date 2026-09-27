@@ -155,30 +155,25 @@ export function MenuSection() {
         </p>
       )}
 
-      <div className="mx-auto mt-2 flex max-w-6xl flex-col gap-8 px-4 md:mt-4 md:gap-10 md:px-6">
+      <div className="mx-auto mt-2 flex max-w-6xl flex-col gap-6 px-3 sm:px-4 md:mt-4 md:gap-8 md:px-6">
         {blocks.map(({ category, products: sectionProducts }) => (
           <div
             key={category.id}
             id={`category-${category.slug}`}
             className="scroll-mt-16"
           >
-            <div className="mb-4 flex items-center justify-center gap-2.5 md:mb-5">
+            <div className="mb-3 flex items-center justify-center gap-2 md:mb-4">
               <CheckerboardAccent className="h-4 w-4 md:h-5 md:w-5" />
-              <h2 className="font-display text-xl font-extrabold text-espresso md:text-2xl">
+              <h2 className="font-display text-lg font-extrabold text-espresso md:text-xl">
                 {category.slug === "popular" ? "Popular Brews" : category.name}
               </h2>
               <CheckerboardAccent className="h-4 w-4 md:h-5 md:w-5" />
             </div>
 
-            <div className="hidden grid-cols-3 gap-4 md:grid md:gap-5 lg:gap-6">
+            {/* 2-col compact cards → ~4 visible like Sugar Latte */}
+            <div className="grid grid-cols-2 gap-2 sm:gap-2.5 md:gap-3 lg:grid-cols-3 lg:gap-4">
               {sectionProducts.map((p) => (
-                <ProductCard key={p.id} product={p} layout="grid" />
-              ))}
-            </div>
-
-            <div className="flex flex-col gap-3 md:hidden">
-              {sectionProducts.map((p) => (
-                <ProductCard key={p.id} product={p} layout="list" />
+                <ProductCard key={p.id} product={p} />
               ))}
             </div>
           </div>

@@ -8,82 +8,44 @@ import { cn } from "@/lib/cn";
 
 type Props = {
   product: Product;
-  layout?: "grid" | "list";
+  className?: string;
 };
 
-export function ProductCard({ product, layout = "grid" }: Props) {
+/** Compact Sugar Latte–style card: text left, image right */
+export function ProductCard({ product, className }: Props) {
   const { openProduct } = useUi();
 
-  if (layout === "list") {
-    return (
-      <article
-        className={cn(
-          "flex items-stretch gap-4 rounded-card bg-surface p-4 shadow-soft/50 transition hover:shadow-soft"
-        )}
-      >
-        <button
-          type="button"
-          className="flex min-w-0 flex-1 flex-col items-start text-left"
-          onClick={() => openProduct(product)}
-        >
-          <h3 className="font-display text-lg font-extrabold text-espresso">
-            {product.name}
-          </h3>
-          <p className="mt-1 line-clamp-2 text-sm text-muted">
-            {product.description}
-          </p>
-          <p className="mt-3 font-display text-base font-bold text-espresso">
-            {formatRs(product.basePriceMinor)}
-          </p>
-        </button>
-        <button
-          type="button"
-          className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl"
-          aria-label={`View ${product.name}`}
-          onClick={() => openProduct(product)}
-        >
-          <Image
-            src={product.imageUrl}
-            alt=""
-            fill
-            className="object-cover"
-            sizes="112px"
-          />
-        </button>
-      </article>
-    );
-  }
-
   return (
-    <article className="flex flex-col overflow-hidden rounded-card bg-surface shadow-soft/50 transition hover:shadow-soft">
-      <button
-        type="button"
-        className="relative aspect-[5/3.4] w-full overflow-hidden md:aspect-[16/11]"
-        onClick={() => openProduct(product)}
-      >
+    <button
+      type="button"
+      onClick={() => openProduct(product)}
+      className={cn(
+        "flex w-full items-stretch gap-2 rounded-2xl bg-white p-2.5 text-left shadow-[0_2px_10px_rgba(60,30,24,0.06)] transition hover:shadow-[0_4px_16px_rgba(60,30,24,0.1)] active:scale-[0.99] sm:gap-2.5 sm:p-3",
+        className
+      )}
+      aria-label={`${product.name}, ${formatRs(product.basePriceMinor)}`}
+    >
+      <div className="flex min-w-0 flex-1 flex-col">
+        <h3 className="font-display text-[13px] font-extrabold leading-snug text-espresso line-clamp-2 sm:text-sm">
+          {product.name}
+        </h3>
+        <p className="mt-0.5 line-clamp-2 text-[10px] leading-snug text-muted sm:text-[11px]">
+          {product.description}
+        </p>
+        <p className="mt-auto pt-1.5 font-display text-[13px] font-extrabold text-espresso sm:text-sm">
+          {formatRs(product.basePriceMinor)}
+        </p>
+      </div>
+
+      <div className="relative h-[4.75rem] w-[4.75rem] shrink-0 overflow-hidden rounded-xl bg-surface sm:h-[5.25rem] sm:w-[5.25rem]">
         <Image
           src={product.imageUrl}
           alt=""
           fill
-          className="object-cover transition duration-500 hover:scale-105"
-          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover"
+          sizes="84px"
         />
-      </button>
-      <button
-        type="button"
-        className="flex flex-1 flex-col gap-1 px-4 pb-4 pt-3 text-left md:gap-1.5 md:px-4 md:pb-4 md:pt-3"
-        onClick={() => openProduct(product)}
-      >
-        <h3 className="font-display text-base font-extrabold text-espresso md:text-lg">
-          {product.name}
-        </h3>
-        <p className="line-clamp-1 text-xs text-muted md:line-clamp-2 md:text-sm">
-          {product.description}
-        </p>
-        <p className="mt-1 font-display text-base font-bold text-espresso md:mt-2">
-          {formatRs(product.basePriceMinor)}
-        </p>
-      </button>
-    </article>
+      </div>
+    </button>
   );
 }
