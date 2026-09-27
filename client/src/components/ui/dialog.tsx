@@ -21,6 +21,8 @@ type DialogProps = {
   labelledBy?: string;
   /** hide title visually but keep for a11y */
   titleSrOnly?: boolean;
+  /** allow body scroll inside panel (default true). Set false for compact modals. */
+  scrollBody?: boolean;
 };
 
 export function Dialog({
@@ -32,6 +34,7 @@ export function Dialog({
   className,
   labelledBy,
   titleSrOnly,
+  scrollBody = true,
 }: DialogProps) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -70,11 +73,14 @@ export function Dialog({
 
     document.addEventListener("keydown", onKey);
     const prevOverflow = document.body.style.overflow;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
 
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
+      document.documentElement.style.overflow = prevHtmlOverflow;
       previousFocus.current?.focus?.();
     };
   }, [open, onClose]);
@@ -83,17 +89,17 @@ export function Dialog({
 
   const sheetClass =
     variant === "modal"
-      ? "items-center justify-center p-4"
+      ? "items-center justify-center p-4 sm:p-6"
       : variant === "sheet"
         ? "items-end justify-center sm:items-center sm:p-4"
         : "items-end justify-center md:items-center md:p-4";
 
   const panelMotion =
     variant === "modal"
-      ? "animate-scale-in rounded-card max-h-[min(90dvh,100%)]"
+      ? "animate-scale-in rounded-[1.5rem] max-h-[min(92dvh,100%)]"
       : variant === "sheet"
-        ? "animate-sheet-in rounded-t-[2rem] sm:animate-scale-in sm:rounded-card max-h-[min(90dvh,100%)]"
-        : "animate-sheet-in rounded-t-[2rem] md:animate-scale-in md:rounded-card max-h-[min(90dvh,100%)]";
+        ? "animate-sheet-in rounded-t-[2rem] sm:animate-scale-in sm:rounded-[1.5rem] max-h-[min(90dvh,100%)]"
+        : "animate-sheet-in rounded-t-[2rem] md:animate-scale-in md:rounded-[1.5rem] max-h-[min(90dvh,100%)]";
 
   const onBackdrop = (e: MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
@@ -106,9 +112,10 @@ export function Dialog({
   return (
     <div
       className={cn(
-        "fixed inset-0 z-50 flex bg-espresso/40 backdrop-blur-[2px]",
-        // Keep sheets/modals below browser chrome + notch (iOS Safari)
-        "pt-[max(0.5rem,env(safe-area-inset-top))] pb-[max(0.25rem,env(safe-area-inset-bottom))]",
+        "fixed inset-0 z-50 flex",
+        "bg-espresso/45 backdrop-blur-xl backdrop-saturate-150",
+        "pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]",
+        "pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))]",
         sheetClass
       )}
       role="presentation"
@@ -121,7 +128,7 @@ export function Dialog({
         aria-modal="true"
         aria-labelledby={labelledBy || titleId}
         className={cn(
-          "relative flex w-full max-w-lg flex-col overflow-hidden bg-cream shadow-sheet",
+          "relative flex w-full max-w-md flex-col overflow-hidden bg-cream shadow-sheet",
           panelMotion,
           className
         )}
@@ -136,7 +143,12 @@ export function Dialog({
         >
           {title}
         </h2>
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <div
+          className={cn(
+            "flex min-h-0 flex-1 flex-col",
+            scrollBody ? "overflow-y-auto no-scrollbar" : "overflow-hidden"
+          )}
+        >
           {children}
         </div>
       </div>
