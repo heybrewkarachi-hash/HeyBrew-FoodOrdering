@@ -41,16 +41,11 @@ const TEMP = {
 
 export const DEMO_BRANCHES: Branch[] = [
   {
-    id: "demo-branch-clifton",
-    name: "Demo Branch — Clifton (Development seed)",
-    addressLabel: "Configure in admin — address placeholder",
-    isActive: true,
-    hoursNote: "Configure in admin — hours not set",
-  },
-  {
-    id: "demo-branch-dha",
-    name: "Demo Branch — DHA (Development seed)",
-    addressLabel: "Configure in admin — address placeholder",
+    id: "demo-branch-bahadurabad",
+    name: "HeyBrew Bahadurabad",
+    addressLabel:
+      "293 Bahadurabad Rd No. 15, Bahadurabad Bahadur Yar Jang CHS, Karachi, 07482, Pakistan",
+    mapsUrl: "https://maps.app.goo.gl/Ti3HrY1thNrRXa3G9",
     isActive: true,
     hoursNote: "Configure in admin — hours not set",
   },
@@ -58,17 +53,17 @@ export const DEMO_BRANCHES: Branch[] = [
 
 export const DEMO_ZONES: DeliveryZone[] = [
   {
-    id: "demo-zone-clifton",
-    name: "Clifton / Defence (Development seed)",
-    branchId: "demo-branch-clifton",
+    id: "demo-zone-bahadurabad",
+    name: "Bahadurabad / PECHS",
+    branchId: "demo-branch-bahadurabad",
     feeMinor: 15000,
     isActive: true,
     etaNote: "Configure in admin — ETA not a real promise",
   },
   {
     id: "demo-zone-gulshan",
-    name: "Gulshan / PECHS (Development seed)",
-    branchId: "demo-branch-dha",
+    name: "Gulshan / Defence",
+    branchId: "demo-branch-bahadurabad",
     feeMinor: 20000,
     isActive: true,
     etaNote: "Configure in admin — ETA not a real promise",

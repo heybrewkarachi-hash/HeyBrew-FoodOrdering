@@ -44,18 +44,23 @@ async function seed() {
     logger.info("Owner admin already exists", { email: owner.email });
   }
 
-  // Demo branch — REPLACE in production
-  let branch = await Branch.findOne({ slug: "heybrew-demo-branch" });
+  // Bahadurabad branch
+  let branch = await Branch.findOne({ slug: "heybrew-bahadurabad" });
+  if (!branch) {
+    branch = await Branch.findOne({ slug: "heybrew-demo-branch" });
+  }
   if (!branch) {
     branch = await Branch.create({
-      name: "HeyBrew — Demo Branch (replace)",
-      slug: "heybrew-demo-branch",
+      name: "HeyBrew Bahadurabad",
+      slug: "heybrew-bahadurabad",
       address: {
-        line1: "123 Demo Street (REPLACE)",
-        area: "Clifton",
+        line1: "293 Bahadurabad Rd No. 15",
+        line2: "Bahadurabad Bahadur Yar Jang CHS",
+        area: "Bahadurabad",
         city: "Karachi",
       },
-      phone: "+923001234567", // REPLACE
+      mapsUrl: "https://maps.app.goo.gl/Ti3HrY1thNrRXa3G9",
+      phone: "+923001234567",
       isPickupOpen: true,
       hours: {
         mon: DEFAULT_HOURS,
@@ -70,7 +75,19 @@ async function seed() {
       orderingPaused: false,
       isActive: true,
     });
-    logger.info("Created demo branch", { id: String(branch._id) });
+    logger.info("Created Bahadurabad branch", { id: String(branch._id) });
+  } else {
+    branch.name = "HeyBrew Bahadurabad";
+    branch.slug = "heybrew-bahadurabad";
+    branch.address = {
+      line1: "293 Bahadurabad Rd No. 15",
+      line2: "Bahadurabad Bahadur Yar Jang CHS",
+      area: "Bahadurabad",
+      city: "Karachi",
+    };
+    branch.mapsUrl = "https://maps.app.goo.gl/Ti3HrY1thNrRXa3G9";
+    branch.isActive = true;
+    await branch.save();
   }
 
   // Delivery zones

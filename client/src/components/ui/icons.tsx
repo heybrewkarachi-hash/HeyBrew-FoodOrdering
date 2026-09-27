@@ -183,3 +183,13 @@ export function IconList(props: IconProps) {
     </Icon>
   );
 }
+
+export function IconExternalLink(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M14 4h6v6" />
+      <path d="M10 14 20 4" />
+      <path d="M20 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5" />
+    </Icon>
+  );
+}

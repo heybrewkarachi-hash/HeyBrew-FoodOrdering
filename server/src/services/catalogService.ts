@@ -50,17 +50,25 @@ export function serializeProduct(p: InstanceType<typeof Product>) {
 
 export async function listBranches() {
   const branches = await Branch.find({ isActive: true }).sort({ name: 1 });
-  return branches.map((b) => ({
-    id: String(b._id),
-    name: b.name,
-    slug: b.slug,
-    address: b.address,
-    phone: b.phone,
-    isPickupOpen: b.isPickupOpen,
-    hours: b.hours,
-    specialClosures: b.specialClosures,
-    orderingPaused: b.orderingPaused,
-  }));
+  return branches.map((b) => {
+    const addressLabel = [b.address?.line1, b.address?.line2, b.address?.area, b.address?.city]
+      .filter(Boolean)
+      .join(", ");
+    return {
+      id: String(b._id),
+      name: b.name,
+      slug: b.slug,
+      address: b.address,
+      addressLabel,
+      mapsUrl: b.mapsUrl ?? null,
+      phone: b.phone,
+      isPickupOpen: b.isPickupOpen,
+      hours: b.hours,
+      specialClosures: b.specialClosures,
+      orderingPaused: b.orderingPaused,
+      isActive: b.isActive,
+    };
+  });
 }
 
 export async function listDeliveryZones(branchId?: string) {

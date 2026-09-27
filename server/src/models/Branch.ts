@@ -41,6 +41,7 @@ const branchSchema = new Schema(
     specialClosures: { type: [specialClosureSchema], default: [] },
     orderingPaused: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
+    mapsUrl: { type: String },
   },
   { timestamps: true }
 );

@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { isValidPkPhone, normalizePkPhone } from "@heybrew/shared";
 import Image from "next/image";
 import { Dialog } from "@/components/ui/dialog";
+import { IconExternalLink, IconMapPin } from "@/components/ui/icons";
 import { useOrdering } from "@/context/ordering-context";
 import { useBranches, useDeliveryZones } from "@/hooks/use-locations";
 import type { OrderingSession } from "@/lib/types";
@@ -75,10 +76,18 @@ export function OrderingSetupModal() {
   }, [setupOpen, hydrated, session, reset]);
 
   const watchedType = watch("type");
+  const selectedLocationId = watch("locationId");
 
   useEffect(() => {
     setType(watchedType);
   }, [watchedType]);
+
+  // Single pickup branch → select it so address card shows immediately
+  useEffect(() => {
+    if (type !== "pickup" || branches.length !== 1) return;
+    if (selectedLocationId === branches[0].id) return;
+    setValue("locationId", branches[0].id, { shouldValidate: true });
+  }, [type, branches, selectedLocationId, setValue]);
 
   const locationOptions = useMemo(() => {
     if (type === "delivery") {
@@ -90,10 +99,15 @@ export function OrderingSetupModal() {
     }
     return branches.map((b) => ({
       id: b.id,
-      label: `${b.name} — ${b.addressLabel}`,
+      label: b.name,
       branchId: b.id,
     }));
   }, [type, zones, branches]);
+
+  const selectedPickupBranch =
+    type === "pickup"
+      ? branches.find((b) => b.id === selectedLocationId) ?? null
+      : null;
 
   const canSubmit = isValid && !isSubmitting;
 
@@ -142,11 +156,9 @@ export function OrderingSetupModal() {
       }}
       title="Select Your Order Type"
       variant="modal"
-      fitViewport
       className="max-w-[20.5rem] bg-white shadow-2xl sm:max-w-sm"
       titleSrOnly
     >
-      {/* Compact brand strip — one glance, no scroll */}
       <div className="flex shrink-0 items-center justify-center bg-espresso px-4 py-3.5">
         <div className="flex items-center gap-0.5 rounded-xl bg-white px-3 py-2 shadow-sm">
           <Image
@@ -208,7 +220,7 @@ export function OrderingSetupModal() {
               className={cn(
                 "w-full appearance-none rounded-xl border border-espresso/20 bg-white px-3 py-2.5 pr-9 text-sm text-espresso",
                 "min-h-10 focus:border-espresso/40 focus:outline-none focus:ring-2 focus:ring-espresso/15",
-                !watch("locationId") && "text-muted",
+                !selectedLocationId && "text-muted",
                 errors.locationId && "border-red-500"
               )}
               aria-invalid={!!errors.locationId}
@@ -242,6 +254,33 @@ export function OrderingSetupModal() {
             </span>
           )}
         </label>
+
+        {selectedPickupBranch && (
+          <div className="rounded-xl bg-[#f3ece3] px-3 py-3">
+            <div className="flex gap-2.5">
+              <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-espresso shadow-sm">
+                <IconMapPin className="h-4 w-4" />
+              </span>
+              <div className="min-w-0 space-y-1">
+                <p className="text-sm font-bold text-espresso">Branch Location</p>
+                <p className="text-xs leading-relaxed text-espresso/80">
+                  {selectedPickupBranch.addressLabel}
+                </p>
+                {selectedPickupBranch.mapsUrl && (
+                  <a
+                    href={selectedPickupBranch.mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 pt-0.5 text-xs font-semibold text-[#8B4513] underline-offset-2 hover:underline"
+                  >
+                    Get Directions
+                    <IconExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         <label className="block space-y-1">
           <span className="text-xs font-semibold text-espresso sm:text-sm">

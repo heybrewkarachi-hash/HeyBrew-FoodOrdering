@@ -54,6 +54,8 @@ export type Branch = {
   name: string;
   addressLabel: string;
   isActive: boolean;
+  /** Google Maps / directions URL */
+  mapsUrl?: string | null;
   /** Configure in admin — not real hours */
   hoursNote?: string;
 };

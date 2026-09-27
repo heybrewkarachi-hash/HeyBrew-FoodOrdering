@@ -144,16 +144,30 @@ export async function fetchBranches(): Promise<Branch[]> {
     const raw = await request<{ items?: Branch[] } | Branch[]>("/api/v1/branches");
     const list = Array.isArray(raw) ? raw : raw.items ?? [];
     apiHealthy = true;
-    return list.map((b) => ({
-      id: b.id,
-      name: b.name,
-      addressLabel:
-        (b as Branch & { address?: { line1?: string } }).addressLabel ||
-        (b as { address?: { line1?: string } }).address?.line1 ||
-        "Configure in admin",
-      isActive: (b as { isActive?: boolean }).isActive !== false,
-      hoursNote: (b as Branch).hoursNote,
-    }));
+    return list.map((b) => {
+      const rawBranch = b as Branch & {
+        address?: { line1?: string; line2?: string; area?: string; city?: string };
+        mapsUrl?: string | null;
+      };
+      const addressFromParts = rawBranch.address
+        ? [
+            rawBranch.address.line1,
+            rawBranch.address.line2,
+            rawBranch.address.area,
+            rawBranch.address.city,
+          ]
+            .filter(Boolean)
+            .join(", ")
+        : "";
+      return {
+        id: b.id,
+        name: b.name,
+        addressLabel: rawBranch.addressLabel || addressFromParts || "Configure in admin",
+        mapsUrl: rawBranch.mapsUrl ?? null,
+        isActive: (b as { isActive?: boolean }).isActive !== false,
+        hoursNote: (b as Branch).hoursNote,
+      };
+    });
   } catch {
     apiHealthy = false;
     return DEMO_BRANCHES;
