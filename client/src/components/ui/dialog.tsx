@@ -90,10 +90,10 @@ export function Dialog({
 
   const panelMotion =
     variant === "modal"
-      ? "animate-scale-in rounded-card max-h-[90vh]"
+      ? "animate-scale-in rounded-card max-h-[min(90dvh,100%)]"
       : variant === "sheet"
-        ? "animate-sheet-in rounded-t-[2rem] sm:animate-scale-in sm:rounded-card max-h-[92vh]"
-        : "animate-sheet-in rounded-t-[2rem] md:animate-scale-in md:rounded-card max-h-[92vh]";
+        ? "animate-sheet-in rounded-t-[2rem] sm:animate-scale-in sm:rounded-card max-h-[min(90dvh,100%)]"
+        : "animate-sheet-in rounded-t-[2rem] md:animate-scale-in md:rounded-card max-h-[min(90dvh,100%)]";
 
   const onBackdrop = (e: MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
@@ -107,6 +107,8 @@ export function Dialog({
     <div
       className={cn(
         "fixed inset-0 z-50 flex bg-espresso/40 backdrop-blur-[2px]",
+        // Keep sheets/modals below browser chrome + notch (iOS Safari)
+        "pt-[max(0.5rem,env(safe-area-inset-top))] pb-[max(0.25rem,env(safe-area-inset-bottom))]",
         sheetClass
       )}
       role="presentation"

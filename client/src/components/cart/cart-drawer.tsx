@@ -68,7 +68,7 @@ export function CartDrawer() {
       onClose={() => setDrawerOpen(false)}
       title="Your Cart"
       variant="auto"
-      className="max-w-md overflow-hidden p-0 md:max-h-[90vh]"
+      className="max-w-md overflow-hidden p-0 md:max-h-[min(90dvh,100%)]"
       titleSrOnly
     >
       <div className="relative flex items-center justify-between bg-espresso px-4 py-4 text-cream">
