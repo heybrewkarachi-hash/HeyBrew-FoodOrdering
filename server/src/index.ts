@@ -26,8 +26,11 @@ async function main() {
 }
 
 main().catch((err) => {
-  logger.error("Failed to start server", {
-    message: err instanceof Error ? err.message : String(err),
-  });
+  const message = err instanceof Error ? err.message : String(err);
+  const stack = err instanceof Error ? err.stack : undefined;
+  logger.error("Failed to start server", { message, stack });
+  // Railway logs surface console output more reliably than structured logger alone
+  console.error("[startup]", message);
+  if (stack) console.error(stack);
   process.exit(1);
 });
