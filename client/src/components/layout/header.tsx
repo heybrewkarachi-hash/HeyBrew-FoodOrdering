@@ -58,10 +58,10 @@ export function Header() {
 
   return (
     <header className="relative z-40 border-b border-espresso/5 bg-cream safe-pt">
-      <div className="mx-auto flex h-[var(--header-height)] max-w-6xl items-center justify-between gap-3 px-4 md:px-6">
+      <div className="mx-auto grid h-[var(--header-height)] max-w-6xl grid-cols-[1fr_auto] items-center gap-3 px-4 md:grid-cols-[1fr_auto_1fr] md:px-6">
         <Link
           href="/"
-          className="flex min-h-touch items-center gap-0.5 rounded-xl transition-opacity duration-200 hover:opacity-90 active:opacity-80 focus-visible:outline-none"
+          className="flex min-h-touch items-center gap-0.5 justify-self-start rounded-xl transition-opacity duration-200 hover:opacity-90 active:opacity-80 focus-visible:outline-none"
         >
           <Image
             src="/brand/heybrew-logo-mark.png"
@@ -76,7 +76,10 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
+        <nav
+          className="hidden items-center justify-center gap-8 md:flex"
+          aria-label="Primary"
+        >
           {NAV.map((item) => {
             const active =
               item.href === "/#menu"
@@ -103,7 +106,7 @@ export function Header() {
           })}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-end gap-2 justify-self-end">
           <button
             type="button"
             onClick={openSetup}
