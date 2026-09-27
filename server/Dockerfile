@@ -3,6 +3,9 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
+# Railway often injects NODE_ENV=production; force dev tooling for compile
+ENV NODE_ENV=development
+
 # bcrypt native build on Alpine
 RUN apk add --no-cache python3 make g++
 
@@ -13,15 +16,17 @@ COPY server/package.json ./server/
 COPY client/package.json ./client/
 COPY admin/package.json ./admin/
 
-# Skip prepare scripts — shared source is not copied yet
-RUN npm install --workspace=@heybrew/shared --workspace=@heybrew/server --ignore-scripts
+# Skip prepare (no sources yet). Include devDeps for tsc/tsup.
+RUN npm install --workspace=@heybrew/shared --workspace=@heybrew/server --ignore-scripts --include=dev
 
 COPY packages/shared ./packages/shared
 COPY server ./server
 
-RUN npm run build -w @heybrew/shared \
-  && npm run build -w @heybrew/server \
-  && npm prune --omit=dev
+RUN npm run build -w @heybrew/shared
+RUN npm run build -w @heybrew/server
+
+# Drop devDependencies for a smaller runtime copy
+RUN npm prune --omit=dev --workspaces=false || npm prune --omit=dev || true
 
 FROM node:20-alpine AS runner
 WORKDIR /app
@@ -30,7 +35,6 @@ ENV NODE_ENV=production
 RUN addgroup -S heybrew && adduser -S heybrew -G heybrew \
   && apk add --no-cache wget
 
-# Hoisted workspace install lives at repo root
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/packages/shared ./packages/shared
