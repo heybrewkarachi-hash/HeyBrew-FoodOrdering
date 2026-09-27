@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.next/
+coverage/
+*.log
+.DS_Store
+
+# Env / secrets — never commit
+.env
+.env.*
+!.env.example
+!**/.env.example
+server/.env
+client/.env.local
+admin/.env.local
+
+tsbuildinfo
+*.tsbuildinfo

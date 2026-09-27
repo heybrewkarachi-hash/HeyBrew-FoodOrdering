@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-cream: #faf6f0;
+  --color-cream-alt: #fdfbf7;
+  --color-surface: #f3ece3;
+  --color-espresso: #3c1e18;
+  --color-muted: #8a7368;
+  --color-success: #2f6b3a;
+  --color-success-soft: #e8f3ea;
+  --color-whatsapp: #25d366;
+  --radius-card: 1.75rem;
+  --header-height: 4.25rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --header-height: 3.75rem;
+    --radius-card: 1.5rem;
+  }
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-cream font-body text-espresso antialiased;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-bold tracking-tight;
+  }
+
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-espresso;
+  }
+}
+
+@layer utilities {
+  .checkerboard {
+    background-image: linear-gradient(
+        45deg,
+        var(--color-espresso) 25%,
+        transparent 25%
+      ),
+      linear-gradient(-45deg, var(--color-espresso) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--color-espresso) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--color-espresso) 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  }
+
+  .checkerboard-cream {
+    background-image: linear-gradient(
+        45deg,
+        var(--color-cream) 25%,
+        transparent 25%
+      ),
+      linear-gradient(-45deg, var(--color-cream) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--color-cream) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--color-cream) 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  }
+
+  .checkerboard-sm {
+    background-size: 8px 8px;
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .safe-pb {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-pt {
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+  }
+
+  .touch-target {
+    @apply min-h-touch min-w-touch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
