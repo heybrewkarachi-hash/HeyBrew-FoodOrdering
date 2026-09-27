@@ -64,7 +64,7 @@ export function CategorySearchBar({
       </div>
 
       {/* Sticky category strip — pinned to viewport top while scrolling menu */}
-      <div className="sticky top-0 z-50 w-full border-b border-espresso/10 bg-[#F7F4F0] shadow-[0_1px_0_rgba(60,30,24,0.06)]">
+      <div className="sticky top-0 z-20 w-full border-b border-espresso/10 bg-[#F7F4F0] shadow-[0_1px_0_rgba(60,30,24,0.06)]">
         <div
           ref={listRef}
           className="flex w-full items-center justify-start gap-1 overflow-x-auto no-scrollbar px-3 py-2.5 sm:gap-1.5 sm:px-4 md:justify-center md:px-6 md:py-3"
