@@ -46,6 +46,10 @@ const config: Config = {
           from: { opacity: "0", transform: "translateY(16px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        "slide-in-left": {
+          from: { transform: "translateX(-100%)" },
+          to: { transform: "translateX(0)" },
+        },
         "sheet-in": {
           from: { transform: "translateY(100%)" },
           to: { transform: "translateY(0)" },
@@ -58,6 +62,7 @@ const config: Config = {
       animation: {
         "fade-in": "fade-in 0.35s ease-out",
         "slide-up": "slide-up 0.4s ease-out",
+        "slide-in-left": "slide-in-left 0.3s ease-out",
         "sheet-in": "sheet-in 0.35s ease-out",
         "scale-in": "scale-in 0.25s ease-out",
       },
