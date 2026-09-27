@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { useCart } from "@/context/cart-context";
@@ -29,6 +30,7 @@ export function Header() {
   const { itemCount, setDrawerOpen } = useCart();
   const { mobileMenuOpen, setMobileMenuOpen } = useUi();
   const { data: settings } = usePublicSettings();
+  const [mounted, setMounted] = useState(false);
 
   const phone = settings?.contactPhone;
   const locationText =
@@ -36,6 +38,10 @@ export function Header() {
     (session.completed
       ? `${orderTypeLabel(session.type)}`
       : "Select location");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
@@ -165,71 +171,74 @@ export function Header() {
         </div>
       </div>
 
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden" role="presentation">
-          <button
-            type="button"
-            className="absolute inset-0 bg-espresso/40 backdrop-blur-[2px] animate-fade-in"
-            aria-label="Close menu"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          <aside
-            className="absolute inset-y-0 left-0 flex w-[min(20rem,86vw)] flex-col bg-cream shadow-soft animate-slide-in-left safe-pt"
-            style={{ paddingLeft: "env(safe-area-inset-left)" }}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Navigation menu"
-          >
-            <div className="flex items-center justify-between border-b border-espresso/10 px-4 py-3">
-              <div className="flex items-center gap-0.5">
-                <Image
-                  src="/brand/heybrew-logo-mark.png"
-                  alt=""
-                  width={40}
-                  height={40}
-                  className="h-9 w-9 object-contain"
-                />
-                <span className="font-display text-base font-extrabold text-espresso">
-                  Menu
-                </span>
-              </div>
-              <button
-                type="button"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-surface text-espresso"
-                aria-label="Close menu"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <IconX />
-              </button>
-            </div>
-            <nav
-              className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4"
-              aria-label="Mobile"
+      {mounted &&
+        mobileMenuOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] md:hidden" role="presentation">
+            <button
+              type="button"
+              className="absolute inset-0 bg-espresso/40 backdrop-blur-[2px] animate-fade-in"
+              aria-label="Close menu"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <aside
+              className="absolute inset-y-0 left-0 flex w-[min(20rem,86vw)] flex-col bg-cream shadow-soft animate-slide-in-left safe-pt"
+              style={{ paddingLeft: "env(safe-area-inset-left)" }}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Navigation menu"
             >
-              {NAV.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="min-h-touch rounded-2xl px-4 py-3 font-display text-lg font-bold text-espresso transition-colors duration-150 hover:bg-surface active:bg-surface/80"
+              <div className="flex items-center justify-between border-b border-espresso/10 bg-cream px-4 py-3">
+                <div className="flex items-center gap-0.5">
+                  <Image
+                    src="/brand/heybrew-logo-mark.png"
+                    alt=""
+                    width={40}
+                    height={40}
+                    className="h-9 w-9 object-contain"
+                  />
+                  <span className="font-display text-base font-extrabold text-espresso">
+                    Menu
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-surface text-espresso"
+                  aria-label="Close menu"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  {item.label}
-                </Link>
-              ))}
-              <button
-                type="button"
-                className="min-h-touch rounded-2xl px-4 py-3 text-left font-display text-lg font-bold text-espresso transition-colors duration-150 hover:bg-surface active:bg-surface/80"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  openSetup();
-                }}
+                  <IconX />
+                </button>
+              </div>
+              <nav
+                className="flex flex-1 flex-col gap-1 overflow-y-auto bg-cream px-3 py-4"
+                aria-label="Mobile"
               >
-                Change location
-              </button>
-            </nav>
-          </aside>
-        </div>
-      )}
+                {NAV.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="min-h-touch rounded-2xl px-4 py-3 font-display text-lg font-bold text-espresso transition-colors duration-150 hover:bg-surface active:bg-surface/80"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+                <button
+                  type="button"
+                  className="min-h-touch rounded-2xl px-4 py-3 text-left font-display text-lg font-bold text-espresso transition-colors duration-150 hover:bg-surface active:bg-surface/80"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openSetup();
+                  }}
+                >
+                  Change location
+                </button>
+              </nav>
+            </aside>
+          </div>,
+          document.body
+        )}
     </header>
   );
 }
