@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  transpilePackages: ["@heybrew/shared"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },

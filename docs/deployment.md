@@ -35,12 +35,14 @@ docker run --env-file server/.env -p 4000:4000 heybrew-api
 
 - Root directory: `client`
 - Framework: Next.js
+- Install/build: use `client/vercel.json` (builds `@heybrew/shared` first — required; `dist/` is not in git)
 - Env: `NEXT_PUBLIC_API_URL=https://api.heybrewkhi.com`
 - Domain: `heybrewkhi.com` (+ `www` redirect)
 
 ### Admin
 
 - Root directory: `admin`
+- Install/build: use `admin/vercel.json` (builds `@heybrew/shared` first)
 - Env: `NEXT_PUBLIC_API_URL=https://api.heybrewkhi.com`
 - Domain: `admin.heybrewkhi.com`
 - Ensure API `ADMIN_URL` and cookie settings match this exact origin (host-only admin cookies; do not share admin session cookies across `*.heybrewkhi.com`).
