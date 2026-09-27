@@ -22,12 +22,14 @@ Target hosts:
 
 ### Dockerfile
 
-See `server/Dockerfile`. Build:
+Build **from monorepo root** (Dockerfile copies `packages/shared` + `server`):
 
 ```bash
-docker build -t heybrew-api ./server
+docker build -f server/Dockerfile -t heybrew-api .
 docker run --env-file server/.env -p 4000:4000 heybrew-api
 ```
+
+Railway: use repo root as build context, Dockerfile path `server/Dockerfile` (see root `railway.toml`). Health check: `GET /health`.
 
 ## Frontend (Vercel)
 
