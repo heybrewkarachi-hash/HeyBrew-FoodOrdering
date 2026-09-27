@@ -16,8 +16,9 @@ COPY server/package.json ./server/
 COPY client/package.json ./client/
 COPY admin/package.json ./admin/
 
-# Skip prepare (no sources yet). Include devDeps for tsc/tsup.
-RUN npm install --workspace=@heybrew/shared --workspace=@heybrew/server --ignore-scripts --include=dev
+# Skip lifecycle prepare (shared sources not copied yet). Include tsc/tsup.
+RUN npm install --workspace=@heybrew/shared --workspace=@heybrew/server --ignore-scripts --include=dev \
+  && npm rebuild bcrypt --build-from-source
 
 COPY packages/shared ./packages/shared
 COPY server ./server
@@ -25,7 +26,7 @@ COPY server ./server
 RUN npm run build -w @heybrew/shared
 RUN npm run build -w @heybrew/server
 
-# Drop devDependencies for a smaller runtime copy
+# Keep production deps + native bcrypt binding; drop compile-only packages
 RUN npm prune --omit=dev --workspaces=false || npm prune --omit=dev || true
 
 FROM node:20-alpine AS runner
