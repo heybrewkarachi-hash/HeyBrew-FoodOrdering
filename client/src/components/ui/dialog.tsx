@@ -21,8 +21,8 @@ type DialogProps = {
   labelledBy?: string;
   /** hide title visually but keep for a11y */
   titleSrOnly?: boolean;
-  /** @deprecated Body always allows overflow scroll without a visible bar */
-  scrollBody?: boolean;
+  /** Compact modal: no inner scroll — content must fit one viewport */
+  fitViewport?: boolean;
 };
 
 export function Dialog({
@@ -34,6 +34,7 @@ export function Dialog({
   className,
   labelledBy,
   titleSrOnly,
+  fitViewport = false,
 }: DialogProps) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -88,14 +89,16 @@ export function Dialog({
 
   const sheetClass =
     variant === "modal"
-      ? "items-center justify-center p-4 sm:p-6"
+      ? "items-center justify-center p-3 sm:p-6"
       : variant === "sheet"
         ? "items-end justify-center sm:items-center sm:p-4"
         : "items-end justify-center md:items-center md:p-4";
 
   const panelMotion =
     variant === "modal"
-      ? "animate-scale-in rounded-[1.5rem] max-h-[min(92dvh,100%)]"
+      ? fitViewport
+        ? "animate-scale-in rounded-[1.25rem]"
+        : "animate-scale-in rounded-[1.5rem] max-h-[min(92dvh,100%)]"
       : variant === "sheet"
         ? "animate-sheet-in rounded-t-[2rem] sm:animate-scale-in sm:rounded-[1.5rem] max-h-[min(90dvh,100%)]"
         : "animate-sheet-in rounded-t-[2rem] md:animate-scale-in md:rounded-[1.5rem] max-h-[min(90dvh,100%)]";
@@ -113,8 +116,8 @@ export function Dialog({
       className={cn(
         "fixed inset-0 z-50 flex",
         "bg-espresso/45 backdrop-blur-xl backdrop-saturate-150",
-        "pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]",
-        "pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))]",
+        "pt-[max(0.5rem,env(safe-area-inset-top))] pb-[max(0.5rem,env(safe-area-inset-bottom))]",
+        "pl-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))]",
         sheetClass
       )}
       role="presentation"
@@ -128,8 +131,8 @@ export function Dialog({
         aria-labelledby={labelledBy || titleId}
         className={cn(
           "relative flex w-full max-w-md flex-col overflow-hidden bg-cream shadow-sheet",
-          // Prefer content height; only constrain on short viewports
-          variant === "modal" && "h-auto max-h-[min(92dvh,100%)]",
+          variant === "modal" && !fitViewport && "h-auto max-h-[min(92dvh,100%)]",
+          variant === "modal" && fitViewport && "h-auto max-h-none",
           panelMotion,
           className
         )}
@@ -146,9 +149,10 @@ export function Dialog({
         </h2>
         <div
           className={cn(
-            "flex min-h-0 flex-1 flex-col",
-            // Always allow scroll without a visible bar — never clip the CTA
-            "overflow-y-auto no-scrollbar overscroll-contain"
+            "flex flex-col",
+            fitViewport
+              ? "overflow-hidden"
+              : "min-h-0 flex-1 overflow-y-auto no-scrollbar overscroll-contain"
           )}
         >
           {children}
