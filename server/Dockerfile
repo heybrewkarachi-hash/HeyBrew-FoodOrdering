@@ -13,12 +13,14 @@ COPY server/package.json ./server/
 COPY client/package.json ./client/
 COPY admin/package.json ./admin/
 
-RUN npm install --workspace=@heybrew/shared --workspace=@heybrew/server
+# Skip prepare scripts — shared source is not copied yet
+RUN npm install --workspace=@heybrew/shared --workspace=@heybrew/server --ignore-scripts
 
 COPY packages/shared ./packages/shared
 COPY server ./server
 
-RUN npm run build -w @heybrew/shared && npm run build -w @heybrew/server \
+RUN npm run build -w @heybrew/shared \
+  && npm run build -w @heybrew/server \
   && npm prune --omit=dev
 
 FROM node:20-alpine AS runner

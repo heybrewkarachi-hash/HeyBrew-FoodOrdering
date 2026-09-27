@@ -20,7 +20,7 @@
     "dev": "tsup --watch",
     "clean": "rimraf dist",
     "typecheck": "tsc --noEmit",
-    "prepare": "npm run build"
+    "prepare": "node -e \"try{require('fs').accessSync('src/index.ts')}catch{process.exit(0)}; require('child_process').execSync('npm run build',{stdio:'inherit'})\""
   },
   "dependencies": {
     "zod": "^3.24.2",
