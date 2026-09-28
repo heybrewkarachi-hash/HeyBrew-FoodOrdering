@@ -1,8 +1,28 @@
 import type { ApiErrorBody } from "@heybrew/shared";
 
-export const API_BASE =
+function resolveApiBase(): string {
+  // Same-origin via admin Vercel rewrite → Railway (first-party cookies)
+  if (process.env.NEXT_PUBLIC_API_PROXY === "1") {
+    return "";
+  }
+  return (
+    (typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL) ||
+    "http://localhost:4000"
+  ).replace(/\/$/, "");
+}
+
+/**
+ * REST base. With NEXT_PUBLIC_API_PROXY=1, requests hit the admin origin and
+ * Vercel rewrites /api/* to Railway so session cookies stay first-party.
+ */
+export const API_BASE = resolveApiBase();
+
+/** Direct API host for Socket.IO (rewrites do not proxy websockets reliably). */
+export const SOCKET_BASE = (
+  (typeof process !== "undefined" && process.env.NEXT_PUBLIC_SOCKET_URL) ||
   (typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL) ||
-  "http://localhost:4000";
+  "http://localhost:4000"
+).replace(/\/$/, "");
 
 export const UI_COOKIE =
   (typeof process !== "undefined" && process.env.NEXT_PUBLIC_ADMIN_UI_COOKIE) ||

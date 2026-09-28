@@ -1,4 +1,14 @@
 {
   "installCommand": "cd .. && npm install",
-  "buildCommand": "cd .. && npm run build:shared && npm run build -w @heybrew/admin"
+  "buildCommand": "cd .. && npm run build:shared && npm run build -w @heybrew/admin",
+  "env": {
+    "NEXT_PUBLIC_API_PROXY": "1",
+    "NEXT_PUBLIC_SOCKET_URL": "https://heybrewserver-production.up.railway.app"
+  },
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://heybrewserver-production.up.railway.app/api/:path*"
+    }
+  ]
 }

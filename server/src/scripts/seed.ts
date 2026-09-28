@@ -10,7 +10,7 @@ import { Category } from "../models/Category";
 import { Product } from "../models/Product";
 import { Coupon } from "../models/Coupon";
 import { StoreSettings } from "../models/StoreSettings";
-import { createAdminUser } from "../services/authService";
+import { createAdminUser, hashPassword } from "../services/authService";
 import { AdminUser } from "../models/AdminUser";
 import { logger } from "../utils/logger";
 
@@ -41,7 +41,12 @@ async function seed() {
     });
     logger.info("Created owner admin", { email: owner.email });
   } else {
-    logger.info("Owner admin already exists", { email: owner.email });
+    // Keep seed password in sync with env (useful after first deploy)
+    owner.passwordHash = await hashPassword(env.ADMIN_PASSWORD);
+    await owner.save();
+    logger.info("Owner admin already exists — password synced from env", {
+      email: owner.email,
+    });
   }
 
   // Bahadurabad branch

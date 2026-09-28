@@ -35,10 +35,37 @@ export const adminApiRouter = Router();
 
 adminApiRouter.use(requireAdmin);
 
+const dashboardQuerySchema = z.object({
+  from: z.string().min(1),
+  to: z.string().min(1),
+  branchId: z.string().optional(),
+});
+
+adminApiRouter.get(
+  "/dashboard",
+  validateQuery(dashboardQuerySchema),
+  asyncHandler(async (req, res) => {
+    const q = (req as typeof req & { validatedQuery: z.infer<typeof dashboardQuerySchema> })
+      .validatedQuery;
+    res.json(
+      await getDashboardStats({
+        from: new Date(q.from),
+        to: new Date(q.to),
+        branchId: q.branchId,
+      })
+    );
+  })
+);
+
+// Back-compat alias
 adminApiRouter.get(
   "/dashboard/stats",
   asyncHandler(async (_req, res) => {
-    res.json(await getDashboardStats());
+    const from = new Date();
+    from.setHours(0, 0, 0, 0);
+    const to = new Date();
+    to.setHours(23, 59, 59, 999);
+    res.json(await getDashboardStats({ from, to }));
   })
 );
 
