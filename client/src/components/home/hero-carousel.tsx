@@ -18,11 +18,9 @@ function isUsableHeroUrl(url?: string | null): url is string {
 
 /**
  * Static hero image (no carousel).
- * - Desktop: 1440 x 320 (aspect 9:2)
- * - Mobile: 900 x 450 (aspect 2:1)
- *
- * Do not fall back to demo/Unsplash while settings load — that caused a
- * 1-2s flash of the old placeholder before the real banner arrived.
+ * Mobile: fixed 2:1 + cover.
+ * Desktop: natural ratio with object-contain so the banner is never
+ * vertically stretched inside a forced frame.
  */
 export function HeroCarousel() {
   const { data: settings, isPending, isError } = usePublicSettings();
@@ -47,37 +45,56 @@ export function HeroCarousel() {
   return (
     <section className="relative mx-auto w-full max-w-[1440px] px-4 pt-3 md:px-6 md:pt-3">
       <div className="relative overflow-hidden rounded-[1.75rem] bg-surface shadow-soft md:rounded-[2rem]">
-        <div className="relative aspect-[2/1] w-full md:aspect-[9/2]">
+        {/* Mobile */}
+        <div className="relative aspect-[2/1] w-full md:hidden">
           {showSkeleton && (
             <div
               className="absolute inset-0 animate-pulse bg-gradient-to-br from-[#f3ebe3] via-[#ebe0d4] to-[#e2d4c4]"
               aria-hidden
             />
           )}
-
           {showImage && (
-            <>
-              <Image
-                src={mobileSrc || desktopSrc}
-                alt={banner?.title || "HeyBrew"}
-                fill
-                className="object-cover object-center md:hidden"
-                priority
-                sizes="100vw"
-              />
-              <Image
-                src={desktopSrc || mobileSrc}
-                alt={banner?.title || "HeyBrew"}
-                fill
-                className="hidden object-cover object-center md:block"
-                priority
-                sizes="(max-width: 1440px) 100vw, 1440px"
-              />
-            </>
+            <Image
+              src={mobileSrc || desktopSrc}
+              alt={banner?.title || "HeyBrew"}
+              fill
+              className="!object-cover object-center"
+              style={{ objectFit: "cover", objectPosition: "center" }}
+              priority
+              sizes="100vw"
+            />
           )}
+          <CheckerboardAccent className="absolute right-3 top-3 h-8 w-8 opacity-80" />
+        </div>
 
-          <CheckerboardAccent className="absolute right-3 top-3 h-8 w-8 opacity-80 md:right-5 md:top-4 md:h-10 md:w-10" />
-          <CheckerboardAccent className="absolute bottom-3 left-3 hidden h-8 w-8 opacity-70 md:block" />
+        {/* Desktop — contain keeps true proportions (no vertical stretch) */}
+        <div className="relative hidden w-full md:block">
+          {showSkeleton && (
+            <div
+              className="aspect-[3/1] w-full animate-pulse bg-gradient-to-br from-[#f3ebe3] via-[#ebe0d4] to-[#e2d4c4]"
+              aria-hidden
+            />
+          )}
+          {showImage && (
+            <Image
+              src={desktopSrc || mobileSrc}
+              alt={banner?.title || "HeyBrew"}
+              width={2880}
+              height={960}
+              className="!h-auto !w-full !max-h-[380px] !object-contain object-center"
+              style={{
+                width: "100%",
+                height: "auto",
+                maxHeight: 380,
+                objectFit: "contain",
+                objectPosition: "center",
+              }}
+              priority
+              sizes="(max-width: 1440px) 100vw, 1440px"
+            />
+          )}
+          <CheckerboardAccent className="pointer-events-none absolute right-5 top-4 h-10 w-10 opacity-80" />
+          <CheckerboardAccent className="pointer-events-none absolute bottom-3 left-3 h-8 w-8 opacity-70" />
         </div>
       </div>
     </section>
