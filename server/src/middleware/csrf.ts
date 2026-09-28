@@ -38,12 +38,21 @@ async function getStoredCsrfHash(adminSessionKey: string): Promise<string | null
   return memoryStore.get(key);
 }
 
+function adminApiCrossSite(): boolean {
+  try {
+    return new URL(env.ADMIN_URL).origin !== new URL(env.API_URL).origin;
+  } catch {
+    return env.NODE_ENV === "production";
+  }
+}
+
 export function setCsrfCookie(res: Response, token: string): void {
   const isProd = env.NODE_ENV === "production";
+  const crossSite = adminApiCrossSite();
   res.cookie(CSRF_COOKIE, token, {
     httpOnly: false, // readable by JS for double-submit
-    secure: isProd,
-    sameSite: isProd ? "strict" : "lax",
+    secure: isProd || crossSite,
+    sameSite: crossSite ? "none" : "lax",
     path: "/",
     maxAge: CSRF_TTL_SECONDS * 1000,
   });

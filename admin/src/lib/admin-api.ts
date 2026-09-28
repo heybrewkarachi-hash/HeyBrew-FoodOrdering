@@ -1,4 +1,4 @@
-import { api, clearCsrf, UI_COOKIE, withId, mapIds, unwrapList } from "./api";
+import { api, apiFetch, clearCsrf, UI_COOKIE, withId, mapIds, unwrapList } from "./api";
 import type {
   AdminSettings,
   AdminUser,
@@ -32,9 +32,10 @@ function normalizeProduct(raw: Record<string, unknown>): Product {
 // ─── Auth ───────────────────────────────────────────────────────────────────
 
 export async function login(email: string, password: string): Promise<AdminUser> {
-  const data = await api.post<{ user: Record<string, unknown> } | Record<string, unknown>>(
+  // Login is unauthenticated — server does not require CSRF on this route
+  const data = await apiFetch<{ user: Record<string, unknown> } | Record<string, unknown>>(
     "/api/v1/admin/auth/login",
-    { email, password }
+    { method: "POST", body: { email, password }, skipCsrf: true }
   );
   const userRaw =
     data && typeof data === "object" && "user" in data

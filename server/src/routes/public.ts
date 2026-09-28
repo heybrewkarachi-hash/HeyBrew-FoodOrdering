@@ -16,6 +16,7 @@ import { normalizePkPhone } from "../utils/phone";
 import { ensureRedisConnected } from "../config/redis";
 import { memoryStore } from "../utils/memoryStore";
 import { generateSessionToken } from "../utils/crypto";
+import { env } from "../config/env";
 
 export const publicApiRouter = Router();
 
@@ -127,8 +128,9 @@ publicApiRouter.post(
 
     res.cookie("heybrew_ordering_session", sessionId, {
       httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      sameSite:
+        new URL(env.CLIENT_URL).origin !== new URL(env.API_URL).origin ? "none" : "lax",
+      secure: env.NODE_ENV === "production",
       maxAge: ttl * 1000,
       path: "/",
     });

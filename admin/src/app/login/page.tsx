@@ -38,8 +38,9 @@ function LoginForm() {
   const onSubmit = handleSubmit(async (values) => {
     setSubmitting(true);
     try {
-      await fetchCsrf(true);
+      // Login has no session yet — CSRF endpoint requires auth, so skip until after login
       const user = await login(values.email, values.password);
+      await fetchCsrf(true);
       setUser(user);
       toast.success(`Welcome back, ${user.name}`);
       const next = search.get("next") || "/";

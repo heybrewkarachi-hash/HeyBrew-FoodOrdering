@@ -27,12 +27,22 @@ declare global {
 
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
+/** Cross-origin admin (e.g. Vercel) → API (e.g. Railway) needs SameSite=None */
+function adminApiCrossSite(): boolean {
+  try {
+    return new URL(env.ADMIN_URL).origin !== new URL(env.API_URL).origin;
+  } catch {
+    return env.NODE_ENV === "production";
+  }
+}
+
 export function getAdminCookieOptions() {
   const isProd = env.NODE_ENV === "production";
+  const crossSite = adminApiCrossSite();
   return {
     httpOnly: true,
-    secure: isProd,
-    sameSite: (isProd ? "strict" : "lax") as "strict" | "lax",
+    secure: isProd || crossSite,
+    sameSite: (crossSite ? "none" : isProd ? "lax" : "lax") as "none" | "lax",
     path: "/",
     maxAge: SESSION_TTL_MS,
     signed: true,
