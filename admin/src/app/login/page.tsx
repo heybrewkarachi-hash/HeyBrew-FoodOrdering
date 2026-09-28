@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 import { login } from "@/lib/admin-api";
 import { ApiError, fetchCsrf } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,6 +26,7 @@ function LoginForm() {
   const search = useSearchParams();
   const { setUser } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -71,12 +73,23 @@ function LoginForm() {
         </div>
         <div>
           <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            {...register("password")}
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              className="pr-10"
+              {...register("password")}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-espresso/45 transition hover:text-espresso"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
           <FieldError message={errors.password?.message} />
         </div>
       </div>
