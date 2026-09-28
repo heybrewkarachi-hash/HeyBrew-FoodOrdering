@@ -18,9 +18,8 @@ function isUsableHeroUrl(url?: string | null): url is string {
 
 /**
  * Static hero image (no carousel).
- * Mobile: fixed 2:1 + cover.
- * Desktop: natural ratio with object-contain so the banner is never
- * vertically stretched inside a forced frame.
+ * - Mobile: 2∶1 + cover
+ * - Desktop: 9∶2 frame + cover (no stretch; light crop if needed)
  */
 export function HeroCarousel() {
   const { data: settings, isPending, isError } = usePublicSettings();
@@ -58,8 +57,7 @@ export function HeroCarousel() {
               src={mobileSrc || desktopSrc}
               alt={banner?.title || "HeyBrew"}
               fill
-              className="!object-cover object-center"
-              style={{ objectFit: "cover", objectPosition: "center" }}
+              className="object-cover object-center"
               priority
               sizes="100vw"
             />
@@ -67,11 +65,11 @@ export function HeroCarousel() {
           <CheckerboardAccent className="absolute right-3 top-3 h-8 w-8 opacity-80" />
         </div>
 
-        {/* Desktop — contain keeps true proportions (no vertical stretch) */}
-        <div className="relative hidden w-full md:block">
+        {/* Desktop — fixed 9∶2 (1440×320) so the bitmap is never stretched */}
+        <div className="relative hidden aspect-[9/2] w-full md:block">
           {showSkeleton && (
             <div
-              className="aspect-[3/1] w-full animate-pulse bg-gradient-to-br from-[#f3ebe3] via-[#ebe0d4] to-[#e2d4c4]"
+              className="absolute inset-0 animate-pulse bg-gradient-to-br from-[#f3ebe3] via-[#ebe0d4] to-[#e2d4c4]"
               aria-hidden
             />
           )}
@@ -79,16 +77,8 @@ export function HeroCarousel() {
             <Image
               src={desktopSrc || mobileSrc}
               alt={banner?.title || "HeyBrew"}
-              width={2880}
-              height={960}
-              className="!h-auto !w-full !max-h-[380px] !object-contain object-center"
-              style={{
-                width: "100%",
-                height: "auto",
-                maxHeight: 380,
-                objectFit: "contain",
-                objectPosition: "center",
-              }}
+              fill
+              className="object-cover object-[center_40%]"
               priority
               sizes="(max-width: 1440px) 100vw, 1440px"
             />
