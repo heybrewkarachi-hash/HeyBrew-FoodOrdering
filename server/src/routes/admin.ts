@@ -577,6 +577,22 @@ adminApiRouter.post(
   })
 );
 
+// Alias used by older admin clients
+adminApiRouter.post(
+  "/uploads/sign",
+  requireRoles("owner", "manager"),
+  requireCsrf,
+  validateBody(
+    z.object({
+      folder: z.string().optional(),
+      publicId: z.string().optional(),
+    })
+  ),
+  asyncHandler(async (req, res) => {
+    res.json(createSignedUpload(req.body));
+  })
+);
+
 // ——— Audit logs ———
 adminApiRouter.get(
   "/audit-logs",

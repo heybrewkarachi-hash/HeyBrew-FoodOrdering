@@ -254,7 +254,10 @@ export async function reorderProducts(ids: string[]): Promise<void> {
 export async function signUpload(params?: {
   folder?: string;
 }): Promise<CloudinarySignResponse> {
-  return api.post<CloudinarySignResponse>("/api/v1/admin/uploads/sign", params ?? {});
+  return api.post<CloudinarySignResponse>(
+    "/api/v1/admin/uploads/cloudinary-sign",
+    params ?? {}
+  );
 }
 
 export async function uploadToCloudinary(
