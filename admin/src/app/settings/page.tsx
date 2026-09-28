@@ -11,12 +11,14 @@ import { ApiError } from "@/lib/api";
 import { EmptyState, PageHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/field";
+import { BannerImageField } from "@/components/settings/banner-image-field";
 import { useAuth } from "@/hooks/useAuth";
 import { canAccess } from "@/lib/roles";
 
 const bannerSchema = z.object({
   id: z.string(),
   imageUrl: z.string().optional().nullable(),
+  imageUrlMobile: z.string().optional().nullable(),
   title: z.string().optional().nullable(),
   subtitle: z.string().optional().nullable(),
   linkUrl: z.string().optional().nullable(),
@@ -103,7 +105,15 @@ export default function SettingsPage() {
       instagram: s.social?.instagram ?? "",
       facebook: s.social?.facebook ?? "",
       tiktok: s.social?.tiktok ?? "",
-      banners: s.banners ?? [],
+      banners: (s.banners ?? []).map((b) => ({
+        id: b.id,
+        imageUrl: b.imageUrl ?? "",
+        imageUrlMobile: b.imageUrlMobile ?? "",
+        title: b.title ?? "",
+        subtitle: b.subtitle ?? "",
+        linkUrl: b.linkUrl ?? "",
+        isActive: b.isActive,
+      })),
     });
   }, [settingsQuery.data, form]);
 
@@ -130,7 +140,14 @@ export default function SettingsPage() {
           facebook: values.facebook || null,
           tiktok: values.tiktok || null,
         },
-        banners: values.banners,
+        banners: values.banners.map((b) => ({
+          ...b,
+          imageUrl: b.imageUrl || null,
+          imageUrlMobile: b.imageUrlMobile || null,
+          title: b.title || null,
+          subtitle: b.subtitle || null,
+          linkUrl: b.linkUrl || null,
+        })),
       }),
     onSuccess: () => {
       toast.success("Settings saved");
@@ -265,8 +282,14 @@ export default function SettingsPage() {
         </section>
 
         <section className="rounded-xl border border-espresso/10 bg-cream-soft p-5 shadow-soft">
-          <div className="flex items-center justify-between">
-            <h2 className="font-display text-lg">Banners</h2>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="font-display text-lg">Banners</h2>
+              <p className="mt-1 text-xs text-espresso/55">
+                Home hero images. Upload separate desktop and mobile crops; only active banners
+                show on the site.
+              </p>
+            </div>
             <Button
               type="button"
               size="sm"
@@ -275,6 +298,7 @@ export default function SettingsPage() {
                 banners.append({
                   id: `bn_${Math.random().toString(36).slice(2, 8)}`,
                   imageUrl: "",
+                  imageUrlMobile: "",
                   title: "",
                   subtitle: "",
                   linkUrl: "",
@@ -285,19 +309,80 @@ export default function SettingsPage() {
               Add banner
             </Button>
           </div>
-          <div className="mt-3 space-y-3">
+          <div className="mt-4 space-y-4">
+            {banners.fields.length === 0 ? (
+              <p className="rounded-lg border border-dashed border-espresso/15 px-4 py-8 text-center text-sm text-espresso/50">
+                No banners yet. Add one and select desktop / mobile images.
+              </p>
+            ) : null}
             {banners.fields.map((field, index) => (
-              <div key={field.id} className="grid gap-2 rounded-lg border border-espresso/10 p-3 sm:grid-cols-2">
-                <Input placeholder="Title" {...form.register(`banners.${index}.title`)} />
-                <Input placeholder="Subtitle" {...form.register(`banners.${index}.subtitle`)} />
-                <Input placeholder="Image URL" {...form.register(`banners.${index}.imageUrl`)} />
-                <Input placeholder="Link URL" {...form.register(`banners.${index}.linkUrl`)} />
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" {...form.register(`banners.${index}.isActive`)} /> Active
-                </label>
-                <Button type="button" size="sm" variant="ghost" onClick={() => banners.remove(index)}>
-                  Remove
-                </Button>
+              <div
+                key={field.id}
+                className="space-y-4 rounded-lg border border-espresso/10 bg-cream-deep/30 p-4"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-espresso">Banner {index + 1}</p>
+                  <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" {...form.register(`banners.${index}.isActive`)} />
+                      Active
+                    </label>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => banners.remove(index)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <BannerImageField
+                    label="Desktop image"
+                    sizeHint="Recommended 2880 × 640 px (shows as 1440 × 320, ratio 9∶2)"
+                    previewAspectClass="aspect-[9/2]"
+                    value={form.watch(`banners.${index}.imageUrl`)}
+                    onChange={(url) =>
+                      form.setValue(`banners.${index}.imageUrl`, url ?? "", {
+                        shouldDirty: true,
+                      })
+                    }
+                  />
+                  <BannerImageField
+                    label="Mobile image"
+                    sizeHint="Recommended 900 × 450 px (ratio 2∶1)"
+                    previewAspectClass="aspect-[2/1]"
+                    value={form.watch(`banners.${index}.imageUrlMobile`)}
+                    onChange={(url) =>
+                      form.setValue(`banners.${index}.imageUrlMobile`, url ?? "", {
+                        shouldDirty: true,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div>
+                    <Label>Title (optional)</Label>
+                    <Input placeholder="Title" {...form.register(`banners.${index}.title`)} />
+                  </div>
+                  <div>
+                    <Label>Subtitle (optional)</Label>
+                    <Input
+                      placeholder="Subtitle"
+                      {...form.register(`banners.${index}.subtitle`)}
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label>Link URL (optional)</Label>
+                    <Input
+                      placeholder="https://…"
+                      {...form.register(`banners.${index}.linkUrl`)}
+                    />
+                  </div>
+                </div>
               </div>
             ))}
           </div>

@@ -237,7 +237,10 @@ export type DashboardStats = {
 
 export type Banner = {
   id: string;
+  /** Desktop hero — prefer 2880×640 (displays 1440×320, 9∶2) */
   imageUrl?: string | null;
+  /** Mobile hero — prefer 900×450 (2∶1) */
+  imageUrlMobile?: string | null;
   title?: string | null;
   subtitle?: string | null;
   linkUrl?: string | null;
