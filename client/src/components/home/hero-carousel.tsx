@@ -65,8 +65,8 @@ export function HeroCarousel() {
           <CheckerboardAccent className="absolute right-3 top-3 h-8 w-8 opacity-80" />
         </div>
 
-        {/* Desktop — fixed 9∶2 (1440×320) so the bitmap is never stretched */}
-        <div className="relative hidden aspect-[9/2] w-full md:block">
+        {/* Desktop — slightly taller than strict 9∶2 so the hero fills a bit more */}
+        <div className="relative hidden aspect-[4/1] w-full md:block">
           {showSkeleton && (
             <div
               className="absolute inset-0 animate-pulse bg-gradient-to-br from-[#f3ebe3] via-[#ebe0d4] to-[#e2d4c4]"
@@ -78,7 +78,7 @@ export function HeroCarousel() {
               src={desktopSrc || mobileSrc}
               alt={banner?.title || "HeyBrew"}
               fill
-              className="object-cover object-[center_40%]"
+              className="object-cover object-[center_42%] scale-[1.02]"
               priority
               sizes="(max-width: 1440px) 100vw, 1440px"
             />
