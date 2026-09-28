@@ -7,7 +7,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(4000),
-  MONGODB_URI: z.string().min(1).default("mongodb://127.0.0.1:27017/heybrew"),
+  MONGODB_URI: z.string().min(1).optional(),
   REDIS_URL: z.string().optional(),
   CLIENT_URL: z.string().url().default("http://localhost:3000"),
   ADMIN_URL: z.string().url().default("http://localhost:3001"),
@@ -32,6 +32,7 @@ const envSchema = z.object({
 });
 
 export type Env = z.infer<typeof envSchema> & {
+  MONGODB_URI: string;
   corsOrigins: string[];
   redisEnabled: boolean;
   cloudinaryEnabled: boolean;
@@ -48,8 +49,21 @@ function parseCorsOrigins(raw: string | undefined, clientUrl: string, adminUrl: 
 
 const parsed = envSchema.parse(process.env);
 
+const mongodbUri =
+  parsed.MONGODB_URI?.trim() ||
+  (parsed.NODE_ENV === "production"
+    ? ""
+    : "mongodb://127.0.0.1:27017/heybrew");
+
+if (!mongodbUri) {
+  throw new Error(
+    "MONGODB_URI is required in production. Set it in Railway Variables (Atlas connection string)."
+  );
+}
+
 export const env: Env = {
   ...parsed,
+  MONGODB_URI: mongodbUri,
   corsOrigins: parseCorsOrigins(parsed.CORS_ORIGINS, parsed.CLIENT_URL, parsed.ADMIN_URL),
   redisEnabled: Boolean(parsed.REDIS_URL && parsed.REDIS_URL.trim().length > 0),
   cloudinaryEnabled: Boolean(
