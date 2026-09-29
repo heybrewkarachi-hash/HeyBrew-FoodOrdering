@@ -67,6 +67,11 @@ function OrderCard({ saved }: { saved: SavedOrderRef }) {
               <p className="mt-1 text-sm text-espresso/75">
                 {customerStatusMessage(status, order?.type ?? "delivery")}
               </p>
+              {status === "cancelled" && order?.cancelReason ? (
+                <p className="mt-1 text-xs text-muted">
+                  Reason: {order.cancelReason}
+                </p>
+              ) : null}
               {order && (
                 <p className="mt-2 text-sm font-semibold text-espresso">
                   {formatRs(order.totals.grandTotalMinor)} ·{" "}

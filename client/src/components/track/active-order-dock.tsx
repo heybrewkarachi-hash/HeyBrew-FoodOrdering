@@ -155,6 +155,11 @@ export function ActiveOrderDock() {
               <p className="mt-1 text-sm leading-relaxed text-espresso/80">
                 {customerStatusMessage(status, order?.type ?? "delivery")}
               </p>
+              {status === "cancelled" && order?.cancelReason ? (
+                <p className="mt-2 rounded-md bg-espresso/5 px-2.5 py-1.5 text-xs leading-relaxed text-espresso/75">
+                  Reason: {order.cancelReason}
+                </p>
+              ) : null}
               <p className="mt-1 text-[11px] text-muted">
                 {socketConnected
                   ? "Live updates on"

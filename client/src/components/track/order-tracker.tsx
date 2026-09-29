@@ -68,6 +68,11 @@ export function OrderTracker({ orderId, orderNumber, token }: Props) {
         <p className="mt-1 text-sm text-cream/90">
           {customerStatusMessage(order.status, order.type)}
         </p>
+        {order.status === "cancelled" && order.cancelReason ? (
+          <p className="mt-2 rounded-md bg-white/10 px-3 py-2 text-sm text-cream/95">
+            Reason: {order.cancelReason}
+          </p>
+        ) : null}
         <p className="mt-2 text-xs text-cream/55">
           {socketConnected
             ? "Live updates connected"

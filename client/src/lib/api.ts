@@ -522,6 +522,37 @@ export function mapTrackedOrder(raw: Record<string, unknown>): TrackedOrder {
             .join(", ")
         : null;
 
+  const statusHistory: TrackedOrder["statusHistory"] = Array.isArray(
+    raw.statusHistory
+  )
+    ? (raw.statusHistory as Array<Record<string, unknown>>).map((entry) => ({
+        status: entry.status as TrackedOrder["status"],
+        at: String(entry.at ?? ""),
+        note:
+          typeof entry.note === "string"
+            ? entry.note
+            : entry.note == null
+              ? undefined
+              : String(entry.note),
+      }))
+    : [];
+
+  let cancelReason: string | null =
+    typeof raw.cancelReason === "string" && raw.cancelReason.trim()
+      ? raw.cancelReason.trim()
+      : null;
+  if (!cancelReason) {
+    for (let i = statusHistory.length - 1; i >= 0; i--) {
+      if (statusHistory[i].status === "cancelled") {
+        const note = statusHistory[i].note?.trim();
+        if (note) {
+          cancelReason = note;
+          break;
+        }
+      }
+    }
+  }
+
   return {
     id: String(raw.id ?? raw.orderId ?? ""),
     orderNumber: String(raw.orderNumber ?? ""),
@@ -547,9 +578,8 @@ export function mapTrackedOrder(raw: Record<string, unknown>): TrackedOrder {
         totalsRaw.grandTotalMinor ?? totalsRaw.totalMinor ?? 0
       ),
     },
-    statusHistory: Array.isArray(raw.statusHistory)
-      ? (raw.statusHistory as TrackedOrder["statusHistory"])
-      : [],
+    statusHistory,
+    cancelReason,
     createdAt: String(raw.createdAt ?? new Date().toISOString()),
     updatedAt: String(raw.updatedAt ?? new Date().toISOString()),
     etaNote: (raw.etaNote as string | null | undefined) ?? null,
