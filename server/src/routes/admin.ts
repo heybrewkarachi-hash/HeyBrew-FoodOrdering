@@ -100,6 +100,7 @@ const statusUpdateSchema = z.object({
   status: orderStatusSchema,
   version: z.number().int().min(0),
   note: z.string().max(500).optional(),
+  cancelReason: z.string().max(500).optional(),
   staffNotes: z.string().max(1000).optional(),
 });
 
@@ -108,6 +109,21 @@ adminApiRouter.patch(
   requireCsrf,
   validateBody(statusUpdateSchema),
   asyncHandler(async (req, res) => {
+    const cancelReason =
+      typeof req.body.cancelReason === "string"
+        ? req.body.cancelReason.trim()
+        : "";
+    const noteRaw =
+      typeof req.body.note === "string" ? req.body.note.trim() : "";
+    const note = cancelReason || noteRaw || undefined;
+
+    if (req.body.status === "cancelled" && !note) {
+      throw badRequest(
+        "CANCEL_REASON_REQUIRED",
+        "A cancel reason is required when cancelling an order"
+      );
+    }
+
     const order = await updateOrderStatus({
       orderId: req.params.id,
       toStatus: req.body.status,
@@ -117,7 +133,7 @@ adminApiRouter.patch(
         id: req.admin!.userId,
         name: req.admin!.name,
       },
-      note: req.body.note,
+      note,
       staffNotes: req.body.staffNotes,
     });
     await writeAudit({
@@ -126,7 +142,11 @@ adminApiRouter.patch(
       action: "order.status_update",
       resource: "Order",
       resourceId: String(order._id),
-      meta: { status: order.status, version: order.version },
+      meta: {
+        status: order.status,
+        version: order.version,
+        ...(req.body.status === "cancelled" ? { cancelReason: note } : {}),
+      },
       ip: req.ip,
       userAgent: req.get("user-agent") ?? undefined,
     });
