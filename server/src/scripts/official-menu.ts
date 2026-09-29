@@ -36,7 +36,6 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "A bold and concentrated coffee with a rich, intense finish.",
     categorySlug: "hot-brew",
     priceRs: 350,
-    featured: true,
     keywords: ["hot", "espresso", "coffee"],
   },
   {
@@ -53,7 +52,6 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "Rich espresso topped with creamy milk and soft foam.",
     categorySlug: "hot-brew",
     priceRs: 500,
-    featured: true,
     keywords: ["hot", "cappuccino", "coffee"],
   },
   {
@@ -163,7 +161,6 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
       "Freshly brewed pour over coffee with a clean and aromatic taste.",
     categorySlug: "specialty",
     priceRs: 600,
-    featured: true,
     keywords: ["specialty", "v60", "pour over"],
   },
 
@@ -207,8 +204,7 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "Sweet and creamy chilled coffee with a rich milky finish.",
     categorySlug: "cold-brew",
     priceRs: 750,
-    featured: true,
-    keywords: ["cold", "spanish", "latte", "popular"],
+    keywords: ["cold", "spanish", "latte"],
   },
   {
     name: "Marshmallow Latte",
@@ -240,7 +236,8 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "Rich chocolate and coffee blended into a smooth chilled drink.",
     categorySlug: "cold-brew",
     priceRs: 750,
-    keywords: ["cold", "mocha", "latte"],
+    featured: true,
+    keywords: ["cold", "mocha", "latte", "popular"],
   },
 
   // ——— Matcha ———
@@ -588,8 +585,7 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "Fudgy chocolate brownie topped with rich Lotus spread.",
     categorySlug: "the-bites",
     priceRs: 400,
-    featured: true,
-    keywords: ["bites", "brownie", "lotus", "dessert", "popular"],
+    keywords: ["bites", "brownie", "lotus", "dessert"],
   },
   {
     name: "Chocolate Chunks Brownie",

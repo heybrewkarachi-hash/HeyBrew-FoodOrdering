@@ -1,9 +1,7 @@
 /**
- * DEVELOPMENT FALLBACK catalog.
- * Used only when the API is unreachable so UI work can continue.
- * Prices match mockup demo values and must be replaced via admin/seed.
+ * Featured / Popular items only — used when API is offline.
+ * Matches admin Popular list from official menu.
  */
-
 import type {
   Branch,
   Category,
@@ -14,10 +12,8 @@ import type {
 } from "./types";
 
 const TEMP = {
-  /** Desktop hero source 2880×640 (9∶2) — Temporary placeholder image */
   heroDesktop:
     "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=2880&h=640&fit=crop&q=80",
-  /** Mobile hero 900×450 (2∶1) — separate crop so cups/text are not cut off */
   heroMobile:
     "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&h=450&fit=crop&q=80",
   hero: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=2880&h=640&fit=crop&q=80",
@@ -90,22 +86,8 @@ export const DEMO_CATEGORIES: Category[] = [
   { id: "cat-the-bites", name: "The Bites", slug: "the-bites", sortOrder: 11 },
 ];
 
-/** Featured official items — used only when API is unreachable */
+/** Popular section — one pick per category as specified by HeyBrew */
 export const DEMO_PRODUCTS: Product[] = [
-  {
-    id: "prod-espresso",
-    name: "Espresso",
-    slug: "espresso",
-    description: "A bold and concentrated coffee with a rich, intense finish.",
-    categoryId: "cat-hot-brew",
-    imageUrl: TEMP.cappuccino,
-    basePriceMinor: 35000,
-    isPopular: true,
-    isAvailable: true,
-    variants: [],
-    modifierGroups: [],
-    tags: ["hot", "espresso", "popular"],
-  },
   {
     id: "prod-spanish-latte",
     name: "Spanish Latte",
@@ -121,25 +103,10 @@ export const DEMO_PRODUCTS: Product[] = [
     tags: ["hot", "spanish", "popular"],
   },
   {
-    id: "prod-v60",
-    name: "V60",
-    slug: "v60",
-    description:
-      "Freshly brewed pour over coffee with a clean and aromatic taste.",
-    categoryId: "cat-specialty",
-    imageUrl: TEMP.latte,
-    basePriceMinor: 60000,
-    isPopular: true,
-    isAvailable: true,
-    variants: [],
-    modifierGroups: [],
-    tags: ["specialty", "v60", "popular"],
-  },
-  {
-    id: "prod-cold-spanish-latte",
-    name: "Spanish Latte",
-    slug: "cold-spanish-latte",
-    description: "Sweet and creamy chilled coffee with a rich milky finish.",
+    id: "prod-cold-mocha-latte",
+    name: "Mocha Latte",
+    slug: "cold-mocha-latte",
+    description: "Rich chocolate and coffee blended into a smooth chilled drink.",
     categoryId: "cat-cold-brew",
     imageUrl: TEMP.cold,
     basePriceMinor: 75000,
@@ -147,7 +114,7 @@ export const DEMO_PRODUCTS: Product[] = [
     isAvailable: true,
     variants: [],
     modifierGroups: [],
-    tags: ["cold", "spanish", "popular"],
+    tags: ["cold", "mocha", "popular"],
   },
   {
     id: "prod-strawberry-matcha",
@@ -192,20 +159,6 @@ export const DEMO_PRODUCTS: Product[] = [
     tags: ["mojito", "popular"],
   },
   {
-    id: "prod-protein-shake",
-    name: "Protein Shake",
-    slug: "protein-shake",
-    description: "A rich and satisfying shake packed with protein and flavor.",
-    categoryId: "cat-shakes",
-    imageUrl: TEMP.marshmallow,
-    basePriceMinor: 110000,
-    isPopular: true,
-    isAvailable: true,
-    variants: [],
-    modifierGroups: [],
-    tags: ["shake", "protein", "popular"],
-  },
-  {
     id: "prod-liver-purifier",
     name: "Liver Purifier",
     slug: "liver-purifier",
@@ -220,25 +173,25 @@ export const DEMO_PRODUCTS: Product[] = [
     tags: ["juice", "popular"],
   },
   {
-    id: "prod-lotus-brownie",
-    name: "Lotus Brownie",
-    slug: "lotus-brownie",
-    description: "Fudgy chocolate brownie topped with rich Lotus spread.",
-    categoryId: "cat-the-bites",
-    imageUrl: TEMP.brownie,
-    basePriceMinor: 40000,
+    id: "prod-protein-shake",
+    name: "Protein Shake",
+    slug: "protein-shake",
+    description: "A rich and satisfying shake packed with protein and flavor.",
+    categoryId: "cat-shakes",
+    imageUrl: TEMP.marshmallow,
+    basePriceMinor: 110000,
     isPopular: true,
     isAvailable: true,
     variants: [],
     modifierGroups: [],
-    tags: ["bites", "brownie", "popular"],
+    tags: ["shake", "protein", "popular"],
   },
 ];
 
 export const DEMO_MENU: MenuResponse = {
   categories: DEMO_CATEGORIES,
   products: DEMO_PRODUCTS,
-  popularProductIds: DEMO_PRODUCTS.filter((p) => p.isPopular).map((p) => p.id),
+  popularProductIds: DEMO_PRODUCTS.map((p) => p.id),
   source: "demo",
 };
 
