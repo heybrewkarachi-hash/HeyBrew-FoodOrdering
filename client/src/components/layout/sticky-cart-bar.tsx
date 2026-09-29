@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { formatRs } from "@/lib/format";
 import { useCart } from "@/context/cart-context";
-import { IconArrowRight, IconCart } from "@/components/ui/icons";
+import { IconArrowRight } from "@/components/ui/icons";
 
 /** Mobile cart shortcut — hidden on checkout (checkout has its own place-order bar). */
 export function StickyCartBar() {
@@ -21,29 +20,26 @@ export function StickyCartBar() {
 
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-espresso/10 bg-cream/95 px-4 py-3 backdrop-blur-md md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 px-3 pt-2 md:hidden"
       style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
     >
-      <div className="mx-auto flex max-w-lg items-center gap-3">
-        <button
-          type="button"
-          onClick={() => setDrawerOpen(true)}
-          className="flex min-h-touch flex-1 items-center justify-between rounded-pill bg-espresso px-5 py-3 text-cream"
-        >
-          <span className="inline-flex items-center gap-2 font-display font-bold">
-            <IconCart className="h-5 w-5" />
-            {itemCount} item{itemCount === 1 ? "" : "s"}
-          </span>
-          <span className="font-display font-bold">{formatRs(total)}</span>
-        </button>
-        <Link
-          href="/checkout"
-          className="inline-flex min-h-touch items-center gap-1 rounded-pill bg-surface px-4 py-3 font-display text-sm font-bold text-espresso"
-        >
-          Checkout
+      <button
+        type="button"
+        onClick={() => setDrawerOpen(true)}
+        aria-label={`View cart, ${itemCount} items, ${formatRs(total)}`}
+        className="mx-auto flex w-full max-w-lg min-h-[3.25rem] items-center gap-3 rounded-[1.25rem] bg-espresso px-3.5 py-2.5 text-cream shadow-[0_8px_28px_rgba(45,24,16,0.35)]"
+      >
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cream font-display text-sm font-extrabold text-espresso tabular-nums">
+          {itemCount > 99 ? "99+" : itemCount}
+        </span>
+        <span className="flex-1 text-center font-display text-base font-bold tracking-wide">
+          View Cart
+        </span>
+        <span className="inline-flex shrink-0 items-center gap-1.5 font-display text-sm font-bold tabular-nums">
+          {formatRs(total)}
           <IconArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
+        </span>
+      </button>
     </div>
   );
 }
