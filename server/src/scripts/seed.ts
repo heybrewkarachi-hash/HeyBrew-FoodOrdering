@@ -13,6 +13,7 @@ import { StoreSettings } from "../models/StoreSettings";
 import { createAdminUser, hashPassword } from "../services/authService";
 import { AdminUser } from "../models/AdminUser";
 import { logger } from "../utils/logger";
+import { OFFICIAL_CATEGORIES, OFFICIAL_PRODUCTS } from "./official-menu";
 
 const DEFAULT_HOURS = {
   open: "09:00",
@@ -112,19 +113,8 @@ async function seed() {
     }
   }
 
-  // Categories — HeyBrew menu sections (Popular = featured from each)
-  const categorySpecs = [
-    { name: "Popular", slug: "popular", displayOrder: 1 },
-    { name: "Hot Brew", slug: "hot-brew", displayOrder: 2 },
-    { name: "Cold Brew", slug: "cold-brew", displayOrder: 3 },
-    { name: "Frappe", slug: "frappe", displayOrder: 4 },
-    { name: "Matcha", slug: "matcha", displayOrder: 5 },
-    { name: "Speciality", slug: "speciality", displayOrder: 6 },
-    { name: "Mojitos", slug: "mojitos", displayOrder: 7 },
-    { name: "Shake", slug: "shake", displayOrder: 8 },
-    { name: "Juice", slug: "juice", displayOrder: 9 },
-    { name: "Dessert", slug: "dessert", displayOrder: 10 },
-  ];
+  // Categories — official HeyBrew menu sections
+  const categorySpecs = [...OFFICIAL_CATEGORIES];
   const categoryIds: Record<string, string> = {};
   for (const c of categorySpecs) {
     let cat = await Category.findOne({ slug: c.slug });
@@ -139,7 +129,7 @@ async function seed() {
     categoryIds[c.slug] = String(cat._id);
   }
 
-  // Deactivate legacy demo category slugs
+  // Deactivate legacy category slugs (old demo names)
   await Category.updateMany(
     {
       slug: {
@@ -150,89 +140,30 @@ async function seed() {
   );
 
   /**
-   * Popular item from each category (names from HeyBrew).
-   * Prices are 0 until the official menu prices are entered in admin.
+   * Official menu products with real prices (paisa = Rs × 100).
+   * Replaces previous testing / Rs 150 seed items.
    */
-  const productSpecs = [
-    {
-      name: "Spanish Latte",
-      slug: "spanish-latte",
-      description: "Hot Brew favourite.",
-      categorySlug: "hot-brew",
-      priceMinor: 15000,
-      featured: true,
-      displayOrder: 1,
-      keywords: ["hot", "latte", "spanish", "popular"],
-    },
-    {
-      name: "Mocha Latte",
-      slug: "mocha-latte",
-      description: "Cold Brew favourite.",
-      categorySlug: "cold-brew",
-      priceMinor: 15000,
-      featured: true,
-      displayOrder: 1,
-      keywords: ["cold", "mocha", "latte", "popular"],
-    },
-    {
-      name: "Pistachio Frappe",
-      slug: "pistachio-frappe",
-      description: "Frappe favourite.",
-      categorySlug: "frappe",
-      priceMinor: 15000,
-      featured: true,
-      displayOrder: 1,
-      keywords: ["frappe", "pistachio", "popular"],
-    },
-    {
-      name: "Strawberry Matcha",
-      slug: "strawberry-matcha",
-      description: "Matcha favourite.",
-      categorySlug: "matcha",
-      priceMinor: 15000,
-      featured: true,
-      displayOrder: 1,
-      keywords: ["matcha", "strawberry", "popular"],
-    },
-    {
-      name: "Bull Hit",
-      slug: "bull-hit",
-      description: "Mojitos favourite.",
-      categorySlug: "mojitos",
-      priceMinor: 15000,
-      featured: true,
-      displayOrder: 1,
-      keywords: ["mojito", "bull hit", "popular"],
-    },
-    {
-      name: "Protein Shake",
-      slug: "protein-shake",
-      description: "Shake favourite.",
-      categorySlug: "shake",
-      priceMinor: 15000,
-      featured: true,
-      displayOrder: 1,
-      keywords: ["shake", "protein", "popular"],
-    },
-    {
-      name: "Liver Purifier",
-      slug: "liver-purifier",
-      description: "Juice favourite.",
-      categorySlug: "juice",
-      priceMinor: 15000,
-      featured: true,
-      displayOrder: 1,
-      keywords: ["juice", "liver purifier", "popular"],
-    },
-  ];
+  const productSpecs = OFFICIAL_PRODUCTS.map((p, index) => ({
+    name: p.name,
+    slug: p.slug,
+    description: p.description,
+    categorySlug: p.categorySlug,
+    priceMinor: p.priceRs * 100,
+    featured: Boolean(p.featured),
+    displayOrder: index + 1,
+    keywords: p.keywords ?? [],
+  }));
 
   const keepSlugs = productSpecs.map((p) => p.slug);
 
-  // Archive old DEVELOPMENT_SEED products not on this list
-  await Product.updateMany(
-    { developmentSeed: true, slug: { $nin: keepSlugs } },
+  // Archive every product not on the official list (demo + leftover test items)
+  const archived = await Product.updateMany(
+    { slug: { $nin: keepSlugs } },
     { $set: { isArchived: true, featured: false } }
   );
+  logger.info("Archived products not on official menu", {
+    modified: archived.modifiedCount,
+  });
 
   for (const p of productSpecs) {
     const payload = {
@@ -242,13 +173,12 @@ async function seed() {
       categoryId: categoryIds[p.categorySlug],
       images: [
         {
-          publicId: `development_seed/${p.slug}`,
-          url: `https://placehold.co/600x600/png?text=${encodeURIComponent(p.name)}`,
-          alt: `${p.name} — Temporary placeholder image (DEVELOPMENT_SEED)`,
+          publicId: `menu/${p.slug}`,
+          url: `https://placehold.co/600x600/3C1E18/F7F3EC/png?text=${encodeURIComponent(p.name)}`,
+          alt: p.name,
         },
       ],
       priceMinor: p.priceMinor,
-      // No size variants until they exist on the official menu
       variants: [],
       modifierGroups: [],
       availableBranchIds: [branch._id],
@@ -257,7 +187,7 @@ async function seed() {
       displayOrder: p.displayOrder,
       isArchived: false,
       keywords: p.keywords,
-      developmentSeed: true,
+      developmentSeed: false,
     };
 
     await Product.findOneAndUpdate(
@@ -266,6 +196,8 @@ async function seed() {
       { upsert: true, new: true }
     );
   }
+
+  logger.info("Upserted official menu products", { count: productSpecs.length });
 
   // Sample coupon SAVE75 — Rs 75 off (7500 paisa) fixed
   const couponCode = "SAVE75";
