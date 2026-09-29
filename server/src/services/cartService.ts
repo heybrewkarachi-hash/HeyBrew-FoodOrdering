@@ -74,11 +74,16 @@ export async function priceCartItems(
     if (item.variantId) {
       const variant = product.variants.find((v) => v.id === item.variantId);
       if (!variant) {
-        throw badRequest("VARIANT_INVALID", `Invalid variant for ${product.name}`);
+        // Client may send a stale/synthetic id when the product has no sizes —
+        // ignore it instead of failing the whole cart.
+        if (product.variants.length > 0) {
+          throw badRequest("VARIANT_INVALID", `Invalid variant for ${product.name}`);
+        }
+      } else {
+        unitPrice += variant.priceDeltaMinor;
+        variantName = variant.name;
+        variantId = variant.id;
       }
-      unitPrice += variant.priceDeltaMinor;
-      variantName = variant.name;
-      variantId = variant.id;
     } else if (product.variants.length > 0) {
       const def = product.variants.find((v) => v.isDefault) ?? product.variants[0];
       unitPrice += def.priceDeltaMinor;

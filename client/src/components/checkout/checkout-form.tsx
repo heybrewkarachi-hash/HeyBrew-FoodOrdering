@@ -146,7 +146,8 @@ export function CheckoutForm() {
         deliveryZoneId: isDelivery ? session.deliveryZoneId : null,
         items: items.map((i) => ({
           productId: i.productId,
-          variantId: i.variantId,
+          variantId:
+            i.variantId && i.variantId !== "default" ? i.variantId : null,
           quantity: i.quantity,
           modifiers: i.modifiers.map((m) => ({
             groupId: m.groupId,

@@ -202,8 +202,23 @@ export async function fetchDeliveryZones(
 
 function mapApiProduct(p: Record<string, unknown>): Product {
   const images = (p.images as Array<{ url?: string; alt?: string }>) || [];
-  const variants = (p.variants as Product["variants"]) || [];
+  const rawVariants =
+    (p.variants as Array<Record<string, unknown>> | undefined) || [];
   const priceMinor = Number(p.priceMinor ?? p.basePriceMinor ?? 0);
+  // Do NOT invent a fake "default" variant — server rejects unknown variantIds
+  const variants = rawVariants
+    .filter((v) => v && v.id != null && String(v.id).length > 0)
+    .map((v) => {
+      const delta = Number(v.priceDeltaMinor ?? 0);
+      const absolute =
+        v.priceMinor != null ? Number(v.priceMinor) : priceMinor + delta;
+      return {
+        id: String(v.id),
+        name: String(v.name ?? "Option"),
+        priceMinor: absolute,
+        isDefault: Boolean(v.isDefault),
+      };
+    });
   return {
     id: String(p.id),
     name: String(p.name ?? ""),
@@ -214,10 +229,7 @@ function mapApiProduct(p: Record<string, unknown>): Product {
     basePriceMinor: priceMinor,
     isPopular: Boolean(p.featured || p.isPopular),
     isAvailable: p.isAvailable !== false,
-    variants:
-      variants.length > 0
-        ? variants
-        : [{ id: "default", name: "Regular", priceMinor, isDefault: true }],
+    variants,
     modifierGroups: (p.modifierGroups as Product["modifierGroups"]) || [],
     tags: (p.keywords as string[]) || (p.tags as string[]) || [],
   };
