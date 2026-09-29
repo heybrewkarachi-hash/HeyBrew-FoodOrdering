@@ -97,8 +97,8 @@ async function seed() {
 
   // Delivery zones
   const zoneSpecs = [
-    { name: "Clifton / DHA (demo)", feeMinor: 15000, minOrderMinor: 50000 },
-    { name: "PECHS / Gulshan (demo)", feeMinor: 20000, minOrderMinor: 60000 },
+    { name: "Clifton / DHA (demo)", feeMinor: 15000, minOrderMinor: 0 },
+    { name: "PECHS / Gulshan (demo)", feeMinor: 20000, minOrderMinor: 0 },
   ];
   for (const z of zoneSpecs) {
     const existing = await DeliveryZone.findOne({ name: z.name, branchId: branch._id });

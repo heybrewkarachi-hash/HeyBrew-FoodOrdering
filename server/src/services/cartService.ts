@@ -169,9 +169,10 @@ export async function validateCart(input: CartValidateInput) {
 
     const { lines, subtotalMinor } = await priceCartItems(input.items, input.branchId);
     if (subtotalMinor < zone.minOrderMinor) {
+      const rs = Math.round(zone.minOrderMinor / 100);
       throw badRequest(
         "MIN_ORDER",
-        `Minimum order for this zone is ${zone.minOrderMinor} paisa`
+        `Minimum order for this zone is Rs ${rs}`
       );
     }
 

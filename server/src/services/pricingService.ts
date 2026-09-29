@@ -39,9 +39,10 @@ export function assertCouponApplicable(params: {
     throw badRequest("COUPON_EXHAUSTED", "Coupon usage limit reached");
   }
   if (subtotalMinor < (coupon.minOrderMinor ?? 0)) {
+    const rs = Math.round((coupon.minOrderMinor ?? 0) / 100);
     throw badRequest(
       "COUPON_MIN_ORDER",
-      `Minimum order of ${coupon.minOrderMinor} paisa required`
+      `Minimum order of Rs ${rs} required for this coupon`
     );
   }
 
