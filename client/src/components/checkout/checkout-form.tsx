@@ -11,6 +11,7 @@ import { placeOrder, ApiError } from "@/lib/api";
 import { formatRs } from "@/lib/format";
 import { useCart } from "@/context/cart-context";
 import { useOrdering } from "@/context/ordering-context";
+import { useMyOrders } from "@/context/my-orders-context";
 import { useBranches } from "@/hooks/use-locations";
 import { Button } from "@/components/ui/button";
 import { TextAreaField, TextField, SelectField } from "@/components/ui/fields";
@@ -72,6 +73,7 @@ export function CheckoutForm() {
   const router = useRouter();
   const { session, openSetup } = useOrdering();
   const { items, couponCode, validated, clearCart, itemCount } = useCart();
+  const { addOrder } = useMyOrders();
   const { data: branches = [] } = useBranches();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -175,9 +177,14 @@ export function CheckoutForm() {
       });
 
       clearCart();
-      router.push(
-        `/track/${result.orderId}?token=${encodeURIComponent(result.accessToken)}`
-      );
+      addOrder({
+        orderId: result.orderId,
+        orderNumber: result.orderNumber,
+        accessToken: result.accessToken,
+        createdAt: new Date().toISOString(),
+        customerName: values.name.trim(),
+      });
+      router.push("/orders");
     } catch (e) {
       const msg =
         e instanceof ApiError

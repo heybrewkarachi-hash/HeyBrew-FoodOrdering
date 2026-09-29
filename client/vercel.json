@@ -1,4 +1,7 @@
 {
   "installCommand": "cd .. && npm install",
-  "buildCommand": "cd .. && npm run build:shared && npm run build -w @heybrew/client"
+  "buildCommand": "cd .. && npm run build:shared && npm run build -w @heybrew/client",
+  "env": {
+    "NEXT_PUBLIC_SOCKET_URL": "https://heybrewserver-production.up.railway.app"
+  }
 }

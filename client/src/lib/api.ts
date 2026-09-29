@@ -397,7 +397,7 @@ export async function placeOrder(
       (typeof crypto !== "undefined" && crypto.randomUUID
         ? crypto.randomUUID()
         : `hb-${Date.now()}`);
-    const raw = await request<{ order?: PlaceOrderResult } & PlaceOrderResult>(
+    const raw = await request<Record<string, unknown>>(
       "/api/v1/orders",
       {
         method: "POST",
@@ -407,7 +407,11 @@ export async function placeOrder(
       }
     );
     apiHealthy = true;
-    return (raw.order ?? raw) as PlaceOrderResult;
+    const payload =
+      raw && typeof raw === "object" && "order" in raw && raw.order
+        ? (raw.order as Record<string, unknown>)
+        : raw;
+    return normalizePlaceOrderResult(payload);
   } catch (e) {
     if (e instanceof ApiError && e.status >= 400 && e.status < 500) throw e;
     apiHealthy = false;
@@ -451,7 +455,7 @@ export async function placeOrder(
           ? input.address
             ? `${input.address.line1}, ${input.address.area}`
             : null
-          : "Pickup - Configure in admin",
+          : "Pickup",
     };
     if (typeof window !== "undefined") {
       sessionStorage.setItem(
@@ -466,9 +470,92 @@ export async function placeOrder(
       status: "pending",
       type: input.type,
       grandTotalMinor: 0,
-      trackUrl: `/orders/${orderNumber}?token=${accessToken}`,
+      trackUrl: `/track/${orderId}?token=${encodeURIComponent(accessToken)}&n=${encodeURIComponent(orderNumber)}`,
     };
   }
+}
+
+function normalizePlaceOrderResult(raw: Record<string, unknown>): PlaceOrderResult {
+  const orderId = String(raw.orderId ?? raw.id ?? "");
+  const orderNumber = String(raw.orderNumber ?? "");
+  const accessToken = String(raw.accessToken ?? "");
+  const totals = raw.totals as { totalMinor?: number; grandTotalMinor?: number } | undefined;
+  const grandTotalMinor = Number(
+    raw.grandTotalMinor ?? totals?.grandTotalMinor ?? totals?.totalMinor ?? 0
+  );
+  return {
+    orderId,
+    orderNumber,
+    accessToken,
+    status: (raw.status as PlaceOrderResult["status"]) ?? "pending",
+    type: (raw.type as PlaceOrderResult["type"]) ?? "delivery",
+    grandTotalMinor,
+    trackUrl:
+      String(raw.trackUrl ?? "") ||
+      `/track/${orderId}?token=${encodeURIComponent(accessToken)}&n=${encodeURIComponent(orderNumber)}`,
+  };
+}
+
+export function mapTrackedOrder(raw: Record<string, unknown>): TrackedOrder {
+  const customer = raw.customer as
+    | { name?: string; phone?: string }
+    | undefined;
+  const address = raw.address as
+    | {
+        line1?: string;
+        line2?: string;
+        area?: string;
+        city?: string;
+        landmark?: string;
+      }
+    | null
+    | undefined;
+  const itemsRaw = (raw.items as Array<Record<string, unknown>>) ?? [];
+  const totalsRaw = (raw.totals as Record<string, unknown>) ?? {};
+
+  const addressSummary =
+    typeof raw.addressSummary === "string"
+      ? raw.addressSummary
+      : address
+        ? [address.line1, address.line2, address.area, address.city]
+            .filter(Boolean)
+            .join(", ")
+        : null;
+
+  return {
+    id: String(raw.id ?? raw.orderId ?? ""),
+    orderNumber: String(raw.orderNumber ?? ""),
+    status: raw.status as TrackedOrder["status"],
+    type: (raw.type as TrackedOrder["type"]) ?? "delivery",
+    paymentMethod: (raw.paymentMethod as TrackedOrder["paymentMethod"]) ?? "cod",
+    paymentStatus: String(raw.paymentStatus ?? "unpaid"),
+    customerName: String(
+      raw.customerName ?? customer?.name ?? "Customer"
+    ),
+    items: itemsRaw.map((item) => ({
+      name: String(item.name ?? item.productName ?? "Item"),
+      quantity: Number(item.quantity ?? 1),
+      lineTotalMinor: Number(item.lineTotalMinor ?? 0),
+      notes: (item.notes as string | null | undefined) ?? null,
+    })),
+    totals: {
+      subtotalMinor: Number(totalsRaw.subtotalMinor ?? 0),
+      deliveryFeeMinor: Number(totalsRaw.deliveryFeeMinor ?? 0),
+      discountMinor: Number(totalsRaw.discountMinor ?? 0),
+      taxMinor: Number(totalsRaw.taxMinor ?? 0),
+      grandTotalMinor: Number(
+        totalsRaw.grandTotalMinor ?? totalsRaw.totalMinor ?? 0
+      ),
+    },
+    statusHistory: Array.isArray(raw.statusHistory)
+      ? (raw.statusHistory as TrackedOrder["statusHistory"])
+      : [],
+    createdAt: String(raw.createdAt ?? new Date().toISOString()),
+    updatedAt: String(raw.updatedAt ?? new Date().toISOString()),
+    etaNote: (raw.etaNote as string | null | undefined) ?? null,
+    branchName: (raw.branchName as string | null | undefined) ?? null,
+    addressSummary,
+  };
 }
 
 export async function trackOrder(
@@ -476,16 +563,20 @@ export async function trackOrder(
   token: string
 ): Promise<TrackedOrder> {
   try {
-    const raw = await request<{ order?: TrackedOrder } & TrackedOrder>(
+    const raw = await request<Record<string, unknown>>(
       `/api/v1/orders/track/${encodeURIComponent(orderNumber)}?token=${encodeURIComponent(token)}`
     );
-    return (raw.order ?? raw) as TrackedOrder;
+    const payload =
+      raw && typeof raw === "object" && "order" in raw && raw.order
+        ? (raw.order as Record<string, unknown>)
+        : raw;
+    return mapTrackedOrder(payload);
   } catch (e) {
     if (typeof window !== "undefined") {
-      const raw = sessionStorage.getItem(
+      const cached = sessionStorage.getItem(
         `heybrew:demo-order:${orderNumber}:${token}`
       );
-      if (raw) return JSON.parse(raw) as TrackedOrder;
+      if (cached) return JSON.parse(cached) as TrackedOrder;
     }
     throw e instanceof ApiError
       ? e

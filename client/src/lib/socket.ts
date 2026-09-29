@@ -39,7 +39,10 @@ export function getSocket(): Socket {
 /**
  * Joins private room `order:{id}` via `order:join` + access token.
  * Listens for server event `order:updated`.
+ * Ref-counted so multiple mounts share one socket without tearing it down early.
  */
+let joinRefCount = 0;
+
 export function subscribeOrderTracking(
   orderId: string,
   accessToken: string,
@@ -47,6 +50,7 @@ export function subscribeOrderTracking(
   onConnectionChange?: (connected: boolean) => void
 ): () => void {
   const s = getSocket();
+  joinRefCount += 1;
 
   const handleUpdated = (payload: OrderUpdatedPayload) => {
     if (payload.orderId !== orderId || !payload.status) return;
@@ -79,9 +83,12 @@ export function subscribeOrderTracking(
   else handleConnect();
 
   return () => {
+    joinRefCount = Math.max(0, joinRefCount - 1);
     s.off("order:updated", handleUpdated);
     s.off("connect", handleConnect);
     s.off("disconnect", handleDisconnect);
-    s.disconnect();
+    if (joinRefCount === 0) {
+      s.disconnect();
+    }
   };
 }

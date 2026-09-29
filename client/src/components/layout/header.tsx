@@ -20,6 +20,7 @@ import {
 
 const NAV = [
   { href: "/#menu", label: "Menu" },
+  { href: "/orders", label: "Orders" },
   { href: "/about-us", label: "About Us" },
   { href: "/contact", label: "Contact" },
 ];
@@ -84,7 +85,9 @@ export function Header() {
             const active =
               item.href === "/#menu"
                 ? pathname === "/"
-                : pathname.startsWith(item.href);
+                : item.href === "/orders"
+                  ? pathname.startsWith("/orders") || pathname.startsWith("/track")
+                  : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}

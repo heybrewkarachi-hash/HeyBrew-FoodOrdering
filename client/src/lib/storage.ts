@@ -29,4 +29,5 @@ export const STORAGE_KEYS = {
   orderingSession: "ordering-session",
   cart: "cart",
   coupon: "coupon",
+  myOrders: "my-orders",
 } as const;

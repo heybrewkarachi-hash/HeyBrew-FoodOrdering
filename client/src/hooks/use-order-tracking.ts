@@ -9,14 +9,23 @@ import type { TrackedOrder } from "@/lib/types";
 
 const POLL_MS = 12_000;
 
-export function useOrderTracking(orderId: string, token: string) {
+/**
+ * @param orderId Mongo id — used for Socket.IO room join
+ * @param orderNumber Human order number — used for HTTP track API
+ * @param token Order access token
+ */
+export function useOrderTracking(
+  orderId: string,
+  orderNumber: string,
+  token: string
+) {
   const [liveStatus, setLiveStatus] = useState<OrderStatus | null>(null);
   const [socketConnected, setSocketConnected] = useState(false);
 
   const query = useQuery({
-    queryKey: ["track-order", orderId, token],
-    queryFn: () => trackOrder(orderId, token),
-    enabled: !!orderId && !!token,
+    queryKey: ["track-order", orderNumber, token],
+    queryFn: () => trackOrder(orderNumber, token),
+    enabled: !!orderNumber && !!token,
     refetchInterval: (q) => {
       const status = q.state.data?.status;
       if (

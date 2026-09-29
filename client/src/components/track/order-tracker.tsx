@@ -1,46 +1,25 @@
 "use client";
 
+import Image from "next/image";
 import { useOrderTracking } from "@/hooks/use-order-tracking";
 import { formatRs } from "@/lib/format";
-import type { OrderStatus } from "@heybrew/shared";
+import {
+  customerStatusMessage,
+  STATUS_LABELS,
+  stepsForType,
+} from "@/lib/order-status";
 import { cn } from "@/lib/cn";
 import { IconClock } from "@/components/ui/icons";
 
-const STATUS_LABELS: Record<OrderStatus, string> = {
-  pending: "Pending confirmation",
-  confirmed: "Confirmed",
-  preparing: "Preparing",
-  on_the_way: "On the way",
-  delivered: "Delivered",
-  ready_for_pickup: "Ready for pickup",
-  collected: "Collected",
-  cancelled: "Cancelled",
-};
-
-const DELIVERY_STEPS: OrderStatus[] = [
-  "pending",
-  "confirmed",
-  "preparing",
-  "on_the_way",
-  "delivered",
-];
-
-const PICKUP_STEPS: OrderStatus[] = [
-  "pending",
-  "confirmed",
-  "preparing",
-  "ready_for_pickup",
-  "collected",
-];
-
 type Props = {
   orderId: string;
+  orderNumber: string;
   token: string;
 };
 
-export function OrderTracker({ orderId, token }: Props) {
+export function OrderTracker({ orderId, orderNumber, token }: Props) {
   const { order, isLoading, isError, error, socketConnected } =
-    useOrderTracking(orderId, token);
+    useOrderTracking(orderId, orderNumber, token);
 
   if (isLoading && !order) {
     return <p className="text-center text-muted">Loading order…</p>;
@@ -61,24 +40,35 @@ export function OrderTracker({ orderId, token }: Props) {
     );
   }
 
-  const steps = order.type === "delivery" ? DELIVERY_STEPS : PICKUP_STEPS;
+  const steps = stepsForType(order.type);
   const activeIdx = steps.indexOf(order.status);
   const isCancelled = order.status === "cancelled";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="rounded-card bg-espresso p-6 text-cream">
-        <p className="text-sm text-cream/70">Order</p>
-        <h1 className="font-display text-3xl font-extrabold">
-          {order.orderNumber}
-        </h1>
-        <p className="mt-2 text-sm">
-          Status:{" "}
-          <span className="font-bold">
-            {STATUS_LABELS[order.status] ?? order.status}
-          </span>
+        <div className="flex items-center gap-3">
+          <Image
+            src="/brand/heybrew-logo-mark.png"
+            alt="HeyBrew"
+            width={48}
+            height={48}
+            className="h-12 w-12 rounded-full bg-cream object-cover"
+          />
+          <div>
+            <p className="text-sm text-cream/70">Order</p>
+            <h1 className="font-display text-3xl font-extrabold">
+              {order.orderNumber}
+            </h1>
+          </div>
+        </div>
+        <p className="mt-4 font-display text-lg font-bold">
+          Dear {order.customerName},
         </p>
-        <p className="mt-1 text-xs text-cream/60">
+        <p className="mt-1 text-sm text-cream/90">
+          {customerStatusMessage(order.status, order.type)}
+        </p>
+        <p className="mt-2 text-xs text-cream/55">
           {socketConnected
             ? "Live updates connected"
             : "Polling for updates (socket fallback)"}
@@ -123,35 +113,58 @@ export function OrderTracker({ orderId, token }: Props) {
               <span>
                 {item.quantity}× {item.name}
               </span>
-              {item.lineTotalMinor > 0 && (
-                <span className="font-semibold">
-                  {formatRs(item.lineTotalMinor)}
-                </span>
-              )}
+              <span className="font-semibold">
+                {formatRs(item.lineTotalMinor)}
+              </span>
             </li>
           ))}
         </ul>
-        {order.totals.grandTotalMinor > 0 && (
-          <p className="mt-4 border-t border-espresso/10 pt-3 font-display text-lg font-extrabold">
-            Total {formatRs(order.totals.grandTotalMinor)}
+        <div className="mt-4 space-y-1 border-t border-espresso/10 pt-3 text-sm">
+          <div className="flex justify-between text-muted">
+            <span>Subtotal</span>
+            <span>{formatRs(order.totals.subtotalMinor)}</span>
+          </div>
+          {order.type === "delivery" && (
+            <div className="flex justify-between text-muted">
+              <span>Delivery</span>
+              <span>{formatRs(order.totals.deliveryFeeMinor)}</span>
+            </div>
+          )}
+          {order.totals.discountMinor > 0 && (
+            <div className="flex justify-between text-muted">
+              <span>Discount</span>
+              <span>−{formatRs(order.totals.discountMinor)}</span>
+            </div>
+          )}
+          <p className="flex justify-between font-display text-lg font-extrabold text-espresso">
+            <span>Total</span>
+            <span>{formatRs(order.totals.grandTotalMinor)}</span>
           </p>
-        )}
+        </div>
       </div>
+
+      {(order.addressSummary || order.type === "pickup") && (
+        <div className="rounded-card bg-surface p-4 text-sm">
+          <p className="font-display font-bold">
+            {order.type === "delivery" ? "Delivery address" : "Pickup"}
+          </p>
+          <p className="mt-1 text-espresso/80">
+            {order.type === "delivery"
+              ? order.addressSummary
+              : order.branchName || order.addressSummary || "Pickup at HeyBrew"}
+          </p>
+        </div>
+      )}
 
       <div className="flex items-start gap-3 rounded-card bg-surface p-4 text-sm">
         <IconClock className="mt-0.5 text-muted" />
         <div>
           <p className="font-semibold">
             {order.etaNote ||
-              "Estimated timing: Configure in admin — not a real promise"}
-          </p>
-          <p className="mt-1 text-muted">
-            Final timing confirmed after your order is accepted.
+              "Timing confirmed after your order is accepted by the café."}
           </p>
         </div>
       </div>
-
-      <p className="text-center text-[10px] text-muted">Demo details</p>
     </div>
   );
 }
