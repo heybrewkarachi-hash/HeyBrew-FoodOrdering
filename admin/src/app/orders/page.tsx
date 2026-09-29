@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
-import { Bell, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import { RefreshCw, Wifi, WifiOff } from "lucide-react";
 import { Suspense } from "react";
 import { listBranches, listOrders } from "@/lib/admin-api";
 import { formatKarachi, karachiDayBoundsIso, labelWithTz, todayKarachiYmd } from "@/lib/dates";
@@ -15,7 +15,7 @@ import {
   TYPE_LABELS,
   statusTone,
 } from "@/lib/orders";
-import { useOrdersSocket, useSoundAlert } from "@/hooks/useOrdersSocket";
+import { useOrdersSocket } from "@/hooks/useOrdersSocket";
 import { Badge, EmptyState, PageHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/field";
@@ -35,7 +35,6 @@ function OrdersPageInner() {
   const [selectedId, setSelectedId] = useState<string | null>(
     searchParams.get("focus")
   );
-  const sound = useSoundAlert();
 
   const bounds = useMemo(() => karachiDayBoundsIso(date), [date]);
 
@@ -43,13 +42,8 @@ function OrdersPageInner() {
     void queryClient.invalidateQueries({ queryKey: ["orders"] });
   }, [queryClient]);
 
-  const onNewOrder = useCallback(() => {
-    refreshOrders();
-    if (sound.enabled) sound.play();
-  }, [refreshOrders, sound]);
-
   const { status: socketStatus } = useOrdersSocket(
-    { onNewOrder, onOrderUpdated: refreshOrders },
+    { onNewOrder: () => refreshOrders(), onOrderUpdated: refreshOrders },
     true
   );
 
@@ -109,14 +103,6 @@ function OrdersPageInner() {
                   : "Offline · polling"}
             </div>
             <Button
-              variant={sound.enabled ? "secondary" : "outline"}
-              size="sm"
-              onClick={() => void sound.enable()}
-            >
-              <Bell className="h-4 w-4" />
-              {sound.enabled ? "Sound on" : "Enable sound alerts"}
-            </Button>
-            <Button
               variant="outline"
               size="sm"
               onClick={() => void ordersQuery.refetch()}
@@ -128,13 +114,6 @@ function OrdersPageInner() {
           </>
         }
       />
-
-      {!sound.enabled ? (
-        <p className="mb-4 rounded-lg border border-caramel/30 bg-caramel/10 px-3 py-2 text-xs text-espresso/80">
-          Browsers block audio until you interact — click <strong>Enable sound alerts</strong> to
-          hear new-order chimes.
-        </p>
-      ) : null}
 
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <div className="xl:col-span-2">
