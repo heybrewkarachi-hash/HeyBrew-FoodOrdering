@@ -1,12 +1,46 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getAdminSocket, disconnectAdminSocket } from "@/lib/socket";
+import { acquireAdminSocket, releaseAdminSocket } from "@/lib/socket";
+import type { OrderStatus, OrderType } from "@heybrew/shared";
 
 export type SocketStatus = "connecting" | "connected" | "disconnected";
 
+export type NewOrderSocketPayload = {
+  orderId: string;
+  orderNumber: string;
+  type: OrderType;
+  status: OrderStatus;
+  version: number;
+  createdAt?: string;
+  at?: string;
+  customer: {
+    name: string;
+    phone: string;
+  };
+  address: {
+    line1: string;
+    line2?: string | null;
+    area: string;
+    city: string;
+    landmark?: string | null;
+  } | null;
+  branchId: string;
+  items: Array<{
+    productName: string;
+    quantity: number;
+    lineTotalMinor: number;
+  }>;
+  totals: {
+    subtotalMinor: number;
+    deliveryFeeMinor: number;
+    discountMinor: number;
+    totalMinor: number;
+  };
+};
+
 type OrdersSocketHandlers = {
-  onNewOrder?: () => void;
+  onNewOrder?: (payload: NewOrderSocketPayload) => void;
   onOrderUpdated?: () => void;
 };
 
@@ -21,26 +55,28 @@ export function useOrdersSocket(
   const [status, setStatus] = useState<SocketStatus>("disconnected");
   const handlersRef = useRef<OrdersSocketHandlers>(
     typeof handlers === "function"
-      ? { onNewOrder: handlers, onOrderUpdated: handlers }
+      ? { onNewOrder: () => (handlers as () => void)(), onOrderUpdated: handlers }
       : handlers
   );
 
   useEffect(() => {
     handlersRef.current =
       typeof handlers === "function"
-        ? { onNewOrder: handlers, onOrderUpdated: handlers }
+        ? {
+            onNewOrder: () => (handlers as () => void)(),
+            onOrderUpdated: handlers,
+          }
         : handlers;
   }, [handlers]);
 
   useEffect(() => {
     if (!enabled) {
-      disconnectAdminSocket();
       setStatus("disconnected");
       return;
     }
 
-    const socket = getAdminSocket();
-    setStatus("connecting");
+    const socket = acquireAdminSocket();
+    setStatus(socket.connected ? "connected" : "connecting");
 
     const onConnect = () => {
       socket.emit(
@@ -53,21 +89,23 @@ export function useOrdersSocket(
       );
     };
     const onDisconnect = () => setStatus("disconnected");
-    const onNew = () => handlersRef.current.onNewOrder?.();
+    const onNew = (payload: NewOrderSocketPayload) =>
+      handlersRef.current.onNewOrder?.(payload);
     const onUpdated = () => handlersRef.current.onOrderUpdated?.();
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("order:new", onNew);
     socket.on("order:updated", onUpdated);
-    socket.connect();
+    if (socket.connected) onConnect();
+    else socket.connect();
 
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
       socket.off("order:new", onNew);
       socket.off("order:updated", onUpdated);
-      socket.disconnect();
+      releaseAdminSocket();
     };
   }, [enabled]);
 
