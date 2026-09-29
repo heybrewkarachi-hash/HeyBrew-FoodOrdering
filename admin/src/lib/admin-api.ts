@@ -152,9 +152,23 @@ export async function updateOrderStatus(
     note?: string;
   }
 ): Promise<Order> {
+  const note =
+    body.note?.trim() ||
+    (body.status === "cancelled" ? body.cancelReason?.trim() : undefined) ||
+    undefined;
+  const payload = {
+    status: body.status,
+    version: body.version,
+    ...(note
+      ? {
+          note,
+          ...(body.status === "cancelled" ? { cancelReason: note } : {}),
+        }
+      : {}),
+  };
   const data = await api.patch<Record<string, unknown> | { order: Record<string, unknown> }>(
     `/api/v1/admin/orders/${id}/status`,
-    body
+    payload
   );
   const raw =
     data && typeof data === "object" && "order" in data
