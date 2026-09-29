@@ -100,8 +100,8 @@ export function Dialog({
         ? "animate-scale-in rounded-[1.25rem]"
         : "animate-scale-in rounded-[1.5rem] max-h-[min(92dvh,100%)]"
       : variant === "sheet"
-        ? "animate-sheet-in rounded-t-[2rem] sm:animate-scale-in sm:rounded-[1.5rem] max-h-[min(90dvh,100%)]"
-        : "animate-sheet-in rounded-t-[2rem] md:animate-scale-in md:rounded-[1.5rem] max-h-[min(90dvh,100%)]";
+        ? "animate-sheet-in rounded-[2rem] sm:animate-scale-in sm:rounded-[1.5rem] max-h-[min(90dvh,100%)]"
+        : "animate-sheet-in rounded-[2rem] md:animate-scale-in md:rounded-[1.5rem] max-h-[min(90dvh,100%)]";
 
   const onBackdrop = (e: MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
