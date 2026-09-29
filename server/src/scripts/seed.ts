@@ -306,6 +306,7 @@ async function seed() {
         whatsappNumber: "+92300REPLACE01", // REPLACE — placeholder WhatsApp
         taxEnabled: false,
         taxRateBps: 0,
+        couponsEnabled: false,
         banners: [
           {
             id: "dev-banner-1",

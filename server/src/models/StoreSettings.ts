@@ -34,6 +34,8 @@ const storeSettingsSchema = new Schema(
     whatsappNumber: { type: String }, // seed marks REPLACE
     taxEnabled: { type: Boolean, default: false },
     taxRateBps: { type: Number, default: 0 }, // basis points; 500 = 5%
+    /** When false (default), client hides coupon field and API ignores coupon codes */
+    couponsEnabled: { type: Boolean, default: false },
     banners: { type: [bannerSchema], default: [] },
     announcements: { type: [announcementSchema], default: [] },
     social: {

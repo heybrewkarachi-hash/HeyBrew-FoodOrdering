@@ -265,6 +265,8 @@ export type AdminSettings = {
   taxEnabled: boolean;
   taxRateBps: number;
   taxConfigured?: boolean;
+  /** Master switch — client only shows coupon codes when true (default false) */
+  couponsEnabled?: boolean;
   banners: Banner[];
   announcements: Announcement[];
   social: {

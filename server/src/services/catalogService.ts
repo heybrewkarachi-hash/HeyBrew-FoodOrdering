@@ -98,6 +98,7 @@ export async function getPublicSettings(): Promise<PublicSettings> {
     whatsappNumber: settings.whatsappNumber ?? null,
     taxEnabled: settings.taxEnabled,
     taxRateBps: settings.taxRateBps,
+    couponsEnabled: settings.couponsEnabled ?? false,
     banners: settings.banners.map((b) => ({
       id: b.id,
       imageUrl: b.imageUrl ?? null,

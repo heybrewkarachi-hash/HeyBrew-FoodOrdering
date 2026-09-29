@@ -200,6 +200,7 @@ export const DEMO_SETTINGS: PublicSettingsClient = {
   whatsappNumber: null,
   taxEnabled: false,
   taxRateBps: 0,
+  couponsEnabled: false,
   banners: [
     {
       id: "banner-1",

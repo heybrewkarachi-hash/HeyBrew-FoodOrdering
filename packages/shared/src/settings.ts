@@ -9,6 +9,8 @@ export const publicSettingsSchema = z.object({
   whatsappNumber: z.string().optional().nullable(),
   taxEnabled: z.boolean(),
   taxRateBps: z.number().int().min(0).max(10000),
+  /** Admin toggle — when false, checkout hides coupon codes */
+  couponsEnabled: z.boolean().default(false),
   banners: z.array(
     z.object({
       id: z.string(),

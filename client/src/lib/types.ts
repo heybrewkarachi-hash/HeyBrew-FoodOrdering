@@ -85,6 +85,8 @@ export type PublicSettingsClient = {
   whatsappNumber?: string | null;
   taxEnabled: boolean;
   taxRateBps: number;
+  /** When false, client hides coupon field (default) */
+  couponsEnabled?: boolean;
   banners: Array<{
     id: string;
     /** Desktop — 2880×640 source, 1440×320 display (9∶2) */

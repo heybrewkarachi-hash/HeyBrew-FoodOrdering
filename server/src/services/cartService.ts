@@ -34,6 +34,16 @@ function oid(id: string): mongoose.Types.ObjectId {
   return new mongoose.Types.ObjectId(id);
 }
 
+async function assertCouponsEnabled() {
+  const settings = await StoreSettings.findOne({ key: "default" }).lean();
+  if (!(settings as { couponsEnabled?: boolean } | null)?.couponsEnabled) {
+    throw badRequest(
+      "COUPONS_DISABLED",
+      "Coupon codes are not enabled for this store"
+    );
+  }
+}
+
 export async function priceCartItems(
   items: CartItemInput[],
   branchId: string
@@ -179,6 +189,7 @@ export async function validateCart(input: CartValidateInput) {
     let discountMinor = 0;
     let couponSnapshot = null;
     if (input.couponCode) {
+      await assertCouponsEnabled();
       const coupon = await Coupon.findOne({
         code: input.couponCode.trim().toUpperCase(),
       });
@@ -234,6 +245,7 @@ export async function validateCart(input: CartValidateInput) {
   let discountMinor = 0;
   let couponSnapshot = null;
   if (input.couponCode) {
+    await assertCouponsEnabled();
     const coupon = await Coupon.findOne({
       code: input.couponCode.trim().toUpperCase(),
     });

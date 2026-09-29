@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { TextField } from "@/components/ui/fields";
@@ -25,6 +25,7 @@ import {
 import { useCart } from "@/context/cart-context";
 import { useMenu } from "@/hooks/use-menu";
 import { useUi } from "@/context/ui-context";
+import { usePublicSettings } from "@/hooks/use-settings";
 import { formatRs, formatSaved } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
@@ -42,8 +43,17 @@ export function CartDrawer() {
     revalidate,
   } = useCart();
   const { data: menu } = useMenu();
+  const { data: settings } = usePublicSettings();
   const { openProduct } = useUi();
   const [couponInput, setCouponInput] = useState(couponCode || "");
+  const couponsEnabled = settings?.couponsEnabled === true;
+
+  useEffect(() => {
+    if (settings && !couponsEnabled && couponCode) {
+      setCouponCode(null);
+      setCouponInput("");
+    }
+  }, [settings, couponsEnabled, couponCode, setCouponCode]);
 
   const upsells =
     menu?.products.filter(
@@ -241,28 +251,29 @@ export function CartDrawer() {
               </div>
             )}
 
-            <div className="space-y-2">
-              <TextField
-                label="Coupon code"
-                placeholder="e.g. DEMO10"
-                value={couponInput}
-                onChange={(e) => setCouponInput(e.target.value)}
-                hint="Development seed coupon DEMO10 works in fallback mode."
-              />
-              <Button
-                variant="secondary"
-                className="w-full"
-                onClick={() => {
-                  setCouponCode(couponInput || null);
-                  revalidate();
-                }}
-              >
-                Apply coupon
-              </Button>
-              {validated?.couponMessage && (
-                <p className="text-xs text-muted">{validated.couponMessage}</p>
-              )}
-            </div>
+            {couponsEnabled ? (
+              <div className="space-y-2">
+                <TextField
+                  label="Coupon code"
+                  placeholder="e.g. DEMO10"
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value)}
+                />
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  onClick={() => {
+                    setCouponCode(couponInput || null);
+                    revalidate();
+                  }}
+                >
+                  Apply coupon
+                </Button>
+                {validated?.couponMessage && (
+                  <p className="text-xs text-muted">{validated.couponMessage}</p>
+                )}
+              </div>
+            ) : null}
 
             <div className="space-y-3 rounded-card bg-surface p-4">
               <SummaryRow

@@ -497,6 +497,7 @@ const settingsBodySchema = z.object({
   whatsappNumber: z.string().optional().nullable(),
   taxEnabled: z.boolean().optional(),
   taxRateBps: z.number().int().min(0).max(10000).optional(),
+  couponsEnabled: z.boolean().optional(),
   banners: z.array(z.record(z.unknown())).optional(),
   announcements: z.array(z.record(z.unknown())).optional(),
   social: z
