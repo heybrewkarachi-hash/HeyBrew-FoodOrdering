@@ -89,10 +89,35 @@ export async function createOrder(
       orderId: String(order._id),
       orderNumber: order.orderNumber,
       type: order.type,
-      totalMinor: order.totals?.totalMinor ?? 0,
       status: order.status,
+      version: order.version,
       createdAt: order.createdAt,
       at,
+      customer: {
+        name: order.customer.name,
+        phone: order.customer.phone,
+      },
+      address: order.address
+        ? {
+            line1: order.address.line1,
+            line2: order.address.line2 ?? null,
+            area: order.address.area,
+            city: order.address.city,
+            landmark: order.address.landmark ?? null,
+          }
+        : null,
+      branchId: String(order.branchId),
+      items: order.items.map((item) => ({
+        productName: item.productName,
+        quantity: item.quantity,
+        lineTotalMinor: item.lineTotalMinor,
+      })),
+      totals: {
+        subtotalMinor: order.totals?.subtotalMinor ?? 0,
+        deliveryFeeMinor: order.totals?.deliveryFeeMinor ?? 0,
+        discountMinor: order.totals?.discountMinor ?? 0,
+        totalMinor: order.totals?.totalMinor ?? 0,
+      },
     });
     io.to(`order:${order._id}`).emit("order:updated", {
       orderId: String(order._id),
