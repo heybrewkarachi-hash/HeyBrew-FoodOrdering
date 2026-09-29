@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { navForRole, roleLabel } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { NewOrderAlertHost } from "@/components/orders/new-order-alert";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useAuth();
@@ -147,6 +148,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
         </div>
       </div>
+      <NewOrderAlertHost />
     </div>
   );
 }
