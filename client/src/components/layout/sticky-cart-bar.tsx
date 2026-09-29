@@ -1,14 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { formatRs } from "@/lib/format";
 import { useCart } from "@/context/cart-context";
 import { IconArrowRight, IconCart } from "@/components/ui/icons";
 
+/** Mobile cart shortcut — hidden on checkout (checkout has its own place-order bar). */
 export function StickyCartBar() {
-  const { itemCount, validated, setDrawerOpen, items } = useCart();
+  const pathname = usePathname();
+  const { itemCount, validated, setDrawerOpen, items, drawerOpen } = useCart();
 
   if (!itemCount) return null;
+  if (drawerOpen) return null;
+  if (pathname?.startsWith("/checkout")) return null;
 
   const total =
     validated?.grandTotalMinor ??

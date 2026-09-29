@@ -310,35 +310,48 @@ export function CheckoutForm() {
         </div>
       </fieldset>
 
-      <div className="rounded-card bg-espresso p-4 text-cream">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-cream/80">Grand total</span>
-          <span className="font-display text-2xl font-extrabold">
-            {formatRs(total)}
-          </span>
-        </div>
-        {validated?.source === "demo" && (
-          <p className="mt-2 text-[10px] text-cream/60">
-            DEVELOPMENT FALLBACK — order may be local-only if API is down.
-          </p>
-        )}
-      </div>
-
       {submitError && (
         <p className="text-sm text-red-600" role="alert">
           {submitError}
         </p>
       )}
 
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full justify-between"
-        disabled={isSubmitting}
+      {/* Spacer so sticky place-order bar does not cover fields */}
+      <div className="h-24 md:hidden" aria-hidden />
+
+      <div
+        className="fixed inset-x-0 bottom-0 z-30 bg-cream/95 px-4 pt-3 backdrop-blur-md md:static md:bg-transparent md:p-0 md:backdrop-blur-none"
+        style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
       >
-        {isSubmitting ? "Placing order…" : "Place order"}
-        <IconArrowRight />
-      </Button>
+        <div className="mx-auto max-w-lg md:max-w-none">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={cn(
+              "flex w-full min-h-[3.75rem] items-center justify-between gap-4 rounded-[1.75rem] bg-espresso px-5 py-3.5 text-left text-cream shadow-soft transition",
+              "disabled:opacity-60"
+            )}
+          >
+            <span>
+              <span className="block text-sm font-medium text-cream/80">
+                Grand Total
+              </span>
+              <span className="font-display text-xl font-extrabold tabular-nums">
+                {formatRs(total)}
+              </span>
+            </span>
+            <span className="inline-flex shrink-0 items-center gap-2 font-display text-lg font-bold lowercase tracking-wide">
+              {isSubmitting ? "placing…" : "checkout"}
+              <IconArrowRight className="h-5 w-5" />
+            </span>
+          </button>
+          {validated?.source === "demo" ? (
+            <p className="mt-2 text-center text-[10px] text-muted md:text-left">
+              DEVELOPMENT FALLBACK — order may be local-only if API is down.
+            </p>
+          ) : null}
+        </div>
+      </div>
     </form>
   );
 }
