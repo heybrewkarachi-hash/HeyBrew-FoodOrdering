@@ -180,6 +180,8 @@ export type TrackedOrder = {
     at: string;
     note?: string;
   }>;
+  /** Present when status is cancelled and admin provided a reason */
+  cancelReason?: string | null;
   createdAt: string;
   updatedAt: string;
   /** Not a binding promise — Configure in admin */

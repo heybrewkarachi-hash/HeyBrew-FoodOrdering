@@ -42,13 +42,13 @@ export function isTerminalStatus(status: OrderStatus): boolean {
 /** Customer-facing sentence under “Dear {name}, …” */
 export function customerStatusMessage(
   status: OrderStatus,
-  type: OrderType
+  _type: OrderType
 ): string {
   switch (status) {
     case "pending":
       return "Your order has been placed. We’re waiting for the café to confirm.";
     case "confirmed":
-      return "Your order is confirmed and will be prepared shortly.";
+      return "Your order is accepted";
     case "preparing":
       return "Your order is being prepared.";
     case "on_the_way":
@@ -60,10 +60,23 @@ export function customerStatusMessage(
     case "collected":
       return "Collected — thank you for ordering with HeyBrew!";
     case "cancelled":
-      return type === "delivery"
-        ? "This order was cancelled."
-        : "This order was cancelled.";
+      return "Your order is cancelled";
     default:
       return STATUS_LABELS[status] ?? status;
   }
+}
+
+/** Latest cancel note from status history, if any. */
+export function cancelReasonFromHistory(
+  history: Array<{ status: OrderStatus; note?: string | null }> | undefined
+): string | null {
+  if (!history?.length) return null;
+  for (let i = history.length - 1; i >= 0; i--) {
+    const entry = history[i];
+    if (entry.status === "cancelled") {
+      const note = entry.note?.trim();
+      if (note) return note;
+    }
+  }
+  return null;
 }
