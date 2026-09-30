@@ -226,51 +226,78 @@ async function seed() {
     logger.info("Created coupon SAVE75");
   }
 
-  // Store settings — WhatsApp marked REPLACE
+  // Store settings — never clobber real Cloudinary banners / contacts already set in admin
+  const existingSettings = await StoreSettings.findOne({ key: "default" });
+  const existingBanners = existingSettings?.banners ?? [];
+  const hasRealBanner = existingBanners.some((b) => {
+    const url = `${b.imageUrl ?? ""} ${b.imageUrlMobile ?? ""}`;
+    return url.includes("res.cloudinary.com") || url.includes("heybrew/banners");
+  });
+
+  const seedBanners = [
+    {
+      id: "dev-banner-1",
+      title: "Your daily brew, delivered.",
+      subtitle:
+        "DEVELOPMENT_SEED — replace with 2880×640 desktop + 900×450 mobile crops",
+      imageUrl:
+        "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=2880&h=640&fit=crop&q=80",
+      imageUrlMobile:
+        "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&h=450&fit=crop&q=80",
+      isActive: true,
+    },
+  ];
+
+  const settingsSet: Record<string, unknown> = {
+    storeName: existingSettings?.storeName || "HeyBrew",
+    tagline: existingSettings?.tagline || "Freshly brewed, made for you",
+    taxEnabled: existingSettings?.taxEnabled ?? false,
+    taxRateBps: existingSettings?.taxRateBps ?? 0,
+    paymentMethods: existingSettings?.paymentMethods ?? {
+      cod: true,
+      card_placeholder: false,
+      wallet_placeholder: false,
+    },
+  };
+
+  // Only fill placeholders when empty — do not reset admin uploads / contacts
+  if (!existingSettings?.contactPhone) {
+    settingsSet.contactPhone = "+923000000000"; // REPLACE
+  }
+  if (!existingSettings?.contactEmail) {
+    settingsSet.contactEmail = "hello@heybrew.example"; // REPLACE
+  }
+  if (!existingSettings?.whatsappNumber) {
+    settingsSet.whatsappNumber = "+92300REPLACE01"; // REPLACE
+  }
+  if (existingSettings?.couponsEnabled === undefined) {
+    settingsSet.couponsEnabled = false;
+  }
+  if (!hasRealBanner) {
+    settingsSet.banners = seedBanners;
+  } else {
+    logger.info("Preserving existing Cloudinary hero banners (seed will not overwrite)");
+  }
+  if (!existingSettings?.announcements?.length) {
+    settingsSet.announcements = [
+      {
+        id: "dev-ann-1",
+        message: "DEVELOPMENT_SEED — demo store is running on seed data",
+        isActive: true,
+      },
+    ];
+  }
+  if (!existingSettings?.social?.instagram) {
+    settingsSet.social = {
+      instagram: existingSettings?.social?.instagram ?? "https://instagram.com/REPLACE",
+      facebook: existingSettings?.social?.facebook ?? null,
+      tiktok: existingSettings?.social?.tiktok ?? null,
+    };
+  }
+
   await StoreSettings.findOneAndUpdate(
     { key: "default" },
-    {
-      $set: {
-        storeName: "HeyBrew",
-        tagline: "Freshly brewed, made for you",
-        contactPhone: "+923000000000", // REPLACE
-        contactEmail: "hello@heybrew.example", // REPLACE
-        whatsappNumber: "+92300REPLACE01", // REPLACE — placeholder WhatsApp
-        taxEnabled: false,
-        taxRateBps: 0,
-        couponsEnabled: false,
-        banners: [
-          {
-            id: "dev-banner-1",
-            title: "Your daily brew, delivered.",
-            subtitle:
-              "DEVELOPMENT_SEED — replace with 2880×640 desktop + 900×450 mobile crops",
-            imageUrl:
-              "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=2880&h=640&fit=crop&q=80",
-            imageUrlMobile:
-              "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&h=450&fit=crop&q=80",
-            isActive: true,
-          },
-        ],
-        announcements: [
-          {
-            id: "dev-ann-1",
-            message: "DEVELOPMENT_SEED — demo store is running on seed data",
-            isActive: true,
-          },
-        ],
-        social: {
-          instagram: "https://instagram.com/REPLACE",
-          facebook: null,
-          tiktok: null,
-        },
-        paymentMethods: {
-          cod: true,
-          card_placeholder: false,
-          wallet_placeholder: false,
-        },
-      },
-    },
+    { $set: settingsSet },
     { upsert: true }
   );
 
