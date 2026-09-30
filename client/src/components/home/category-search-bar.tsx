@@ -67,7 +67,7 @@ export function CategorySearchBar({
       <div className="sticky top-0 z-20 w-full border-b border-espresso/10 bg-[#F7F4F0] shadow-[0_1px_0_rgba(60,30,24,0.06)]">
         <div
           ref={listRef}
-          className="flex w-full items-center justify-start gap-1 overflow-x-auto no-scrollbar px-3 py-2.5 sm:gap-1.5 sm:px-4 md:justify-center md:px-6 md:py-3"
+          className="mx-auto flex w-full max-w-6xl items-center justify-start gap-1 overflow-x-auto overscroll-x-contain no-scrollbar px-4 py-2.5 sm:gap-1.5 sm:px-5 md:gap-2 md:px-6 md:py-3"
           role="tablist"
           aria-label="Drink categories"
         >
@@ -84,7 +84,7 @@ export function CategorySearchBar({
                 aria-selected={active}
                 aria-controls={`category-${cat.slug}`}
                 className={cn(
-                  "shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 font-display text-[18px] font-extrabold tracking-tight transition sm:px-4",
+                  "shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 font-display text-base font-extrabold tracking-tight transition sm:px-4 sm:text-lg md:text-[1.125rem]",
                   active
                     ? "bg-espresso text-cream shadow-sm"
                     : "bg-transparent text-espresso hover:text-espresso"
