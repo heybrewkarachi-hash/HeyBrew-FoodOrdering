@@ -45,6 +45,8 @@ export function serializeProduct(p: InstanceType<typeof Product>) {
     featured: p.featured,
     displayOrder: p.displayOrder,
     keywords: p.keywords,
+    isArchived: p.isArchived,
+    developmentSeed: p.developmentSeed,
   };
 }
 

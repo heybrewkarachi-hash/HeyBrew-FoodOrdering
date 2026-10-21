@@ -165,6 +165,15 @@ adminApiRouter.get(
   })
 );
 
+adminApiRouter.get(
+  "/products/:id",
+  asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+    if (!product) throw notFound("PRODUCT_NOT_FOUND", "Product not found");
+    res.json({ product: serializeProduct(product) });
+  })
+);
+
 const productBodySchema = z.object({
   name: z.string().min(1).max(160),
   slug: z.string().min(1).max(160).optional(),

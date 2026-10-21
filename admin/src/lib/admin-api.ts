@@ -230,7 +230,13 @@ export async function listProducts(params: {
 } = {}): Promise<Paginated<Product>> {
   const data = await api.get<
     Product[] | { items: Record<string, unknown>[]; page?: number; limit?: number; total?: number }
-  >("/api/v1/admin/products", params);
+  >("/api/v1/admin/products", {
+    page: params.page,
+    limit: params.limit,
+    q: params.q,
+    categoryId: params.categoryId,
+    includeArchived: params.archived === true ? true : undefined,
+  });
   const unwrapped = unwrapList(data as never);
   return {
     items: unwrapped.items.map((p) => normalizeProduct(p as Record<string, unknown>)),
@@ -240,24 +246,32 @@ export async function listProducts(params: {
   };
 }
 
+function unwrapProduct(data: Record<string, unknown>): Product {
+  const raw =
+    data && typeof data === "object" && "product" in data
+      ? (data.product as Record<string, unknown>)
+      : data;
+  return normalizeProduct(raw);
+}
+
 export async function getProduct(id: string): Promise<Product> {
   const data = await api.get<Record<string, unknown>>(`/api/v1/admin/products/${id}`);
-  return normalizeProduct(data);
+  return unwrapProduct(data);
 }
 
 export async function createProduct(body: Partial<Product>): Promise<Product> {
   const data = await api.post<Record<string, unknown>>("/api/v1/admin/products", body);
-  return normalizeProduct(data);
+  return unwrapProduct(data);
 }
 
 export async function updateProduct(id: string, body: Partial<Product>): Promise<Product> {
   const data = await api.patch<Record<string, unknown>>(`/api/v1/admin/products/${id}`, body);
-  return normalizeProduct(data);
+  return unwrapProduct(data);
 }
 
 export async function archiveProduct(id: string): Promise<Product> {
   const data = await api.delete<Record<string, unknown>>(`/api/v1/admin/products/${id}`);
-  if (data) return normalizeProduct(data);
+  if (data) return unwrapProduct(data);
   return updateProduct(id, { isArchived: true });
 }
 
