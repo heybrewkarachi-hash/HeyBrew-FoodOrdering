@@ -1,14 +1,24 @@
 /**
- * Official HeyBrew menu — prices in PKR (converted to paisa in seed).
- * Duplicate names across categories get unique slugs with a category prefix.
+ * Official HeyBrew menu (Oct 2026 PDF).
+ * Prices in PKR. Variants use Reg as base; Large is a positive delta.
  */
+
+export type OfficialVariant = {
+  id: string;
+  name: string;
+  /** Absolute price in PKR for this size */
+  priceRs: number;
+  isDefault?: boolean;
+};
 
 export type OfficialProduct = {
   name: string;
   slug: string;
   description: string;
   categorySlug: string;
+  /** Base / Reg price in PKR */
   priceRs: number;
+  variants?: OfficialVariant[];
   featured?: boolean;
   keywords?: string[];
 };
@@ -25,11 +35,17 @@ export const OFFICIAL_CATEGORIES = [
   { name: "Juice", slug: "juice", displayOrder: 9 },
   { name: "Beverages", slug: "beverages", displayOrder: 10 },
   { name: "Add Ons", slug: "add-ons", displayOrder: 11 },
-  { name: "The Bites", slug: "the-bites", displayOrder: 12 },
 ] as const;
 
+function sizes(regRs: number, largeRs: number): OfficialVariant[] {
+  return [
+    { id: "reg", name: "Regular", priceRs: regRs, isDefault: true },
+    { id: "large", name: "Large", priceRs: largeRs },
+  ];
+}
+
 export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
-  // ——— Hot Brew ———
+  // ——— Hot Brew (single size) ———
   {
     name: "Espresso",
     slug: "espresso",
@@ -164,13 +180,14 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     keywords: ["specialty", "v60", "pour over"],
   },
 
-  // ——— Cold Brew ———
+  // ——— Cold Brew (Reg / Large) ———
   {
     name: "Latte",
     slug: "cold-latte",
     description: "Smooth chilled coffee blended with creamy milk.",
     categorySlug: "cold-brew",
     priceRs: 750,
+    variants: sizes(750, 950),
     keywords: ["cold", "latte"],
   },
   {
@@ -180,6 +197,7 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
       "Creamy iced coffee with sweet caramel and a subtle salty touch.",
     categorySlug: "cold-brew",
     priceRs: 750,
+    variants: sizes(750, 950),
     keywords: ["cold", "caramel", "salted"],
   },
   {
@@ -188,6 +206,7 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "Chilled creamy coffee with sweet and aromatic vanilla flavor.",
     categorySlug: "cold-brew",
     priceRs: 800,
+    variants: sizes(800, 1000),
     keywords: ["cold", "vanilla", "latte"],
   },
   {
@@ -196,6 +215,7 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "Smooth iced latte with rich and nutty hazelnut notes.",
     categorySlug: "cold-brew",
     priceRs: 750,
+    variants: sizes(750, 950),
     keywords: ["cold", "hazelnut", "latte"],
   },
   {
@@ -204,6 +224,7 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "Sweet and creamy chilled coffee with a rich milky finish.",
     categorySlug: "cold-brew",
     priceRs: 750,
+    variants: sizes(750, 950),
     keywords: ["cold", "spanish", "latte"],
   },
   {
@@ -212,15 +233,8 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "Creamy iced coffee with a soft and sweet marshmallow flavor.",
     categorySlug: "cold-brew",
     priceRs: 750,
+    variants: sizes(750, 950),
     keywords: ["cold", "marshmallow", "latte"],
-  },
-  {
-    name: "Pistachio Latte",
-    slug: "cold-pistachio-latte",
-    description: "Smooth chilled latte with rich and creamy pistachio flavor.",
-    categorySlug: "cold-brew",
-    priceRs: 800,
-    keywords: ["cold", "pistachio", "latte"],
   },
   {
     name: "White Chocolate Latte",
@@ -228,6 +242,7 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "Creamy iced coffee with smooth white chocolate sweetness.",
     categorySlug: "cold-brew",
     priceRs: 750,
+    variants: sizes(750, 950),
     keywords: ["cold", "white chocolate", "latte"],
   },
   {
@@ -236,11 +251,12 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "Rich chocolate and coffee blended into a smooth chilled drink.",
     categorySlug: "cold-brew",
     priceRs: 750,
+    variants: sizes(750, 950),
     featured: true,
     keywords: ["cold", "mocha", "latte", "popular"],
   },
 
-  // ——— Matcha ———
+  // ——— Matcha (single size on PDF) ———
   {
     name: "Matcha Green",
     slug: "matcha-green",
@@ -268,13 +284,14 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     keywords: ["matcha", "mango"],
   },
 
-  // ——— Frappe ———
+  // ——— Frappe (Reg / Large) ———
   {
     name: "Vanilla Frappe",
     slug: "vanilla-frappe",
     description: "A creamy blended drink with smooth and sweet vanilla flavor.",
     categorySlug: "frappe",
     priceRs: 850,
+    variants: sizes(850, 1100),
     keywords: ["frappe", "vanilla"],
   },
   {
@@ -283,6 +300,7 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "Rich and creamy frappe blended with sweet caramel goodness.",
     categorySlug: "frappe",
     priceRs: 850,
+    variants: sizes(850, 1100),
     keywords: ["frappe", "caramel"],
   },
   {
@@ -291,6 +309,7 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "A chilled creamy blend with rich roasted hazelnut flavor.",
     categorySlug: "frappe",
     priceRs: 850,
+    variants: sizes(850, 1100),
     keywords: ["frappe", "hazelnut"],
   },
   {
@@ -300,6 +319,7 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
       "A refreshing blend of coffee and chocolate with a creamy finish.",
     categorySlug: "frappe",
     priceRs: 850,
+    variants: sizes(850, 1100),
     keywords: ["frappe", "mocha"],
   },
   {
@@ -308,16 +328,9 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "A creamy frappe packed with rich Lotus biscuit flavor.",
     categorySlug: "frappe",
     priceRs: 900,
-    keywords: ["frappe", "lotus"],
-  },
-  {
-    name: "Pistachio Frappe",
-    slug: "pistachio-frappe",
-    description: "A smooth and creamy frappe with rich pistachio flavor.",
-    categorySlug: "frappe",
-    priceRs: 950,
+    variants: sizes(900, 1150),
     featured: true,
-    keywords: ["frappe", "pistachio", "popular"],
+    keywords: ["frappe", "lotus", "popular"],
   },
   {
     name: "Tiramisu Frappe",
@@ -326,6 +339,7 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
       "A creamy coffee blend inspired by the classic tiramisu dessert.",
     categorySlug: "frappe",
     priceRs: 950,
+    variants: sizes(950, 1200),
     keywords: ["frappe", "tiramisu"],
   },
   {
@@ -334,26 +348,19 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     description: "A sweet and creamy blended drink with marshmallow goodness.",
     categorySlug: "frappe",
     priceRs: 850,
+    variants: sizes(850, 1100),
     keywords: ["frappe", "marshmallow"],
   },
 
   // ——— Mojitos / Refreshers ———
-  {
-    name: "Bull Hit",
-    slug: "bull-hit",
-    description: "A bold and energizing refresher with a crisp, chilled finish.",
-    categorySlug: "mojitos-refreshers",
-    priceRs: 900,
-    featured: true,
-    keywords: ["mojito", "refresher", "bull hit", "popular"],
-  },
   {
     name: "Blue Lagoon",
     slug: "blue-lagoon",
     description: "A bright and refreshing drink with a cool fruity taste.",
     categorySlug: "mojitos-refreshers",
     priceRs: 750,
-    keywords: ["mojito", "blue lagoon"],
+    featured: true,
+    keywords: ["mojito", "blue lagoon", "popular"],
   },
   {
     name: "Strawberry Mojito",
@@ -577,87 +584,18 @@ export const OFFICIAL_PRODUCTS: OfficialProduct[] = [
     priceRs: 200,
     keywords: ["addon", "ice cream"],
   },
-
-  // ——— The Bites ———
-  {
-    name: "Lotus Brownie",
-    slug: "lotus-brownie",
-    description: "Fudgy chocolate brownie topped with rich Lotus spread.",
-    categorySlug: "the-bites",
-    priceRs: 400,
-    keywords: ["bites", "brownie", "lotus", "dessert"],
-  },
-  {
-    name: "Chocolate Chunks Brownie",
-    slug: "chocolate-chunks-brownie",
-    description:
-      "Rich and fudgy brownie loaded with delicious chocolate chunks.",
-    categorySlug: "the-bites",
-    priceRs: 400,
-    keywords: ["bites", "brownie", "chocolate"],
-  },
-  {
-    name: "Nutella Brownie",
-    slug: "nutella-brownie",
-    description: "A soft fudgy brownie filled with rich Nutella goodness.",
-    categorySlug: "the-bites",
-    priceRs: 400,
-    keywords: ["bites", "brownie", "nutella"],
-  },
-  {
-    name: "Fudge Brownie",
-    slug: "fudge-brownie",
-    description: "Rich, gooey and chocolatey brownie with a fudgy center.",
-    categorySlug: "the-bites",
-    priceRs: 350,
-    keywords: ["bites", "brownie", "fudge"],
-  },
-  {
-    name: "Oreo Cheesecake",
-    slug: "oreo-cheesecake",
-    description: "Creamy cheesecake packed with delicious Oreo flavor.",
-    categorySlug: "the-bites",
-    priceRs: 600,
-    keywords: ["bites", "cheesecake", "oreo"],
-  },
-  {
-    name: "Lotus Cheesecake",
-    slug: "lotus-cheesecake",
-    description: "Smooth and creamy cheesecake with rich Lotus biscuit flavor.",
-    categorySlug: "the-bites",
-    priceRs: 700,
-    keywords: ["bites", "cheesecake", "lotus"],
-  },
-  {
-    name: "Caramel Three Milk Cake",
-    slug: "caramel-three-milk-cake",
-    description: "Soft and moist milk cake finished with sweet caramel flavor.",
-    categorySlug: "the-bites",
-    priceRs: 550,
-    keywords: ["bites", "cake", "caramel", "tres leches"],
-  },
-  {
-    name: "Oreo Three Milk Cake",
-    slug: "oreo-three-milk-cake",
-    description: "Soft and creamy milk cake with rich Oreo goodness.",
-    categorySlug: "the-bites",
-    priceRs: 550,
-    keywords: ["bites", "cake", "oreo", "tres leches"],
-  },
-  {
-    name: "Lotus Three Milk Cake",
-    slug: "lotus-three-milk-cake",
-    description: "Moist and creamy milk cake packed with Lotus flavor.",
-    categorySlug: "the-bites",
-    priceRs: 600,
-    keywords: ["bites", "cake", "lotus", "tres leches"],
-  },
-  {
-    name: "Centre Filled Cookies",
-    slug: "centre-filled-cookies",
-    description: "Soft baked cookies with a rich and delicious filled center.",
-    categorySlug: "the-bites",
-    priceRs: 200,
-    keywords: ["bites", "cookies"],
-  },
 ];
+
+/** Build Mongo-ready variants (delta from base Reg price). */
+export function toDbVariants(
+  product: OfficialProduct
+): Array<{ id: string; name: string; priceDeltaMinor: number; isDefault: boolean }> {
+  if (!product.variants?.length) return [];
+  const base = product.priceRs;
+  return product.variants.map((v) => ({
+    id: v.id,
+    name: v.name,
+    priceDeltaMinor: (v.priceRs - base) * 100,
+    isDefault: Boolean(v.isDefault),
+  }));
+}

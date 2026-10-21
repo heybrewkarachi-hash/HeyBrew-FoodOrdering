@@ -41,7 +41,9 @@ export function ProductCard({ product, className }: Props) {
           </p>
         </div>
         <p className="font-display text-base font-extrabold text-espresso sm:text-lg">
-          {formatRs(product.basePriceMinor)}
+          {product.variants.length > 1
+            ? `from ${formatRs(product.basePriceMinor)}`
+            : formatRs(product.basePriceMinor)}
         </p>
       </div>
 

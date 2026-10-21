@@ -205,6 +205,9 @@ export function ProductDetailModal() {
                       onClick={() => setVariantId(v.id)}
                     >
                       {v.name}
+                      {v.priceMinor !== product.basePriceMinor
+                        ? ` · ${formatRs(v.priceMinor)}`
+                        : ""}
                     </button>
                   ))}
                 </div>

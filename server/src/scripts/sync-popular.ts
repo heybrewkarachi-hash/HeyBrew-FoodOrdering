@@ -9,8 +9,8 @@ const POPULAR_SLUGS = [
   "spanish-latte",
   "cold-mocha-latte",
   "strawberry-matcha",
-  "pistachio-frappe",
-  "bull-hit",
+  "lotus-frappe",
+  "blue-lagoon",
   "liver-purifier",
   "protein-shake",
 ];

@@ -13,7 +13,7 @@ import { StoreSettings } from "../models/StoreSettings";
 import { createAdminUser, hashPassword } from "../services/authService";
 import { AdminUser } from "../models/AdminUser";
 import { logger } from "../utils/logger";
-import { OFFICIAL_CATEGORIES, OFFICIAL_PRODUCTS } from "./official-menu";
+import { OFFICIAL_CATEGORIES, OFFICIAL_PRODUCTS, toDbVariants } from "./official-menu";
 
 const DEFAULT_HOURS = {
   open: "09:00",
@@ -149,6 +149,7 @@ async function seed() {
     description: p.description,
     categorySlug: p.categorySlug,
     priceMinor: p.priceRs * 100,
+    variants: toDbVariants(p),
     featured: Boolean(p.featured),
     displayOrder: index + 1,
     keywords: p.keywords ?? [],
@@ -166,20 +167,19 @@ async function seed() {
   });
 
   for (const p of productSpecs) {
-    const payload = {
+    const existing = await Product.findOne({ slug: p.slug }).select("images");
+    const keepImages =
+      existing?.images?.some((img) =>
+        String(img.url ?? "").includes("res.cloudinary.com")
+      ) ?? false;
+
+    const payload: Record<string, unknown> = {
       name: p.name,
       slug: p.slug,
       description: p.description,
       categoryId: categoryIds[p.categorySlug],
-      images: [
-        {
-          publicId: `menu/${p.slug}`,
-          url: `https://placehold.co/600x600/3C1E18/F7F3EC/png?text=${encodeURIComponent(p.name)}`,
-          alt: p.name,
-        },
-      ],
       priceMinor: p.priceMinor,
-      variants: [],
+      variants: p.variants,
       modifierGroups: [],
       availableBranchIds: [branch._id],
       soldOutBranchIds: [],
@@ -189,6 +189,16 @@ async function seed() {
       keywords: p.keywords,
       developmentSeed: false,
     };
+
+    if (!keepImages) {
+      payload.images = [
+        {
+          publicId: `menu/${p.slug}`,
+          url: `https://placehold.co/600x600/3C1E18/F7F3EC/png?text=${encodeURIComponent(p.name)}`,
+          alt: p.name,
+        },
+      ];
+    }
 
     await Product.findOneAndUpdate(
       { slug: p.slug },
