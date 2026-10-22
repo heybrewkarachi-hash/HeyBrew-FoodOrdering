@@ -21,6 +21,7 @@ async function main() {
       redis: env.redisEnabled ? "configured" : "disabled (IN_MEMORY_FALLBACK)",
       cloudinary: env.cloudinaryEnabled ? "configured" : "not configured",
       corsOrigins: env.corsOrigins,
+      // deploy nudge: resume Railway after upstream pause
     });
   });
 }
