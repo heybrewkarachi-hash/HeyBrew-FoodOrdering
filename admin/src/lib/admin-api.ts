@@ -255,8 +255,17 @@ function unwrapProduct(data: Record<string, unknown>): Product {
 }
 
 export async function getProduct(id: string): Promise<Product> {
-  const data = await api.get<Record<string, unknown>>(`/api/v1/admin/products/${id}`);
-  return unwrapProduct(data);
+  try {
+    const data = await api.get<Record<string, unknown>>(`/api/v1/admin/products/${id}`);
+    return unwrapProduct(data);
+  } catch (err) {
+    // Older Railway builds lacked GET /products/:id — fall back to the list endpoint.
+    if (!(err instanceof ApiError) || err.status !== 404) throw err;
+    const listed = await listProducts({ archived: true, limit: 500 });
+    const found = listed.items.find((p) => p.id === id);
+    if (!found) throw err;
+    return found;
+  }
 }
 
 export async function createProduct(body: Partial<Product>): Promise<Product> {
