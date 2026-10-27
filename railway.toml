@@ -5,6 +5,14 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "server/Dockerfile"
+# Only rebuild API when backend (or shared) sources change — not client/admin.
+watchPatterns = [
+  "server/**",
+  "packages/shared/**",
+  "package.json",
+  "package-lock.json",
+  "railway.toml",
+]
 
 [deploy]
 healthcheckPath = "/health"
