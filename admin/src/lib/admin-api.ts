@@ -1,4 +1,4 @@
-import { api, apiFetch, clearCsrf, UI_COOKIE, withId, mapIds, unwrapList } from "./api";
+import { api, apiFetch, ApiError, clearCsrf, UI_COOKIE, withId, mapIds, unwrapList } from "./api";
 import type {
   AdminSettings,
   AdminUser,
