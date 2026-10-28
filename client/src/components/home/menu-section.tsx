@@ -170,8 +170,8 @@ export function MenuSection() {
               <CheckerboardAccent className="h-4 w-4 md:h-5 md:w-5" />
             </div>
 
-            {/* Full-bleed 2-col like Sugar Latte — 4 large cards in view */}
-            <div className="grid w-full grid-cols-2 gap-3 sm:gap-4 md:gap-5">
+            {/* 1 product per row on mobile (Sugar Latte); 2-col from md up */}
+            <div className="grid w-full grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 md:gap-5">
               {sectionProducts.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
