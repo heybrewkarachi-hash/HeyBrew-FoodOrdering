@@ -159,7 +159,15 @@ adminApiRouter.get(
   "/products",
   asyncHandler(async (req, res) => {
     const includeArchived = req.query.includeArchived === "true";
-    const filter = includeArchived ? {} : { isArchived: false };
+    const categoryId = typeof req.query.categoryId === "string" ? req.query.categoryId.trim() : "";
+    const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+    const filter: Record<string, unknown> = includeArchived ? {} : { isArchived: false };
+    if (categoryId) filter.categoryId = categoryId;
+    if (q) {
+      const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const rx = new RegExp(escaped, "i");
+      filter.$or = [{ name: rx }, { slug: rx }, { keywords: rx }];
+    }
     const products = await Product.find(filter).sort({ displayOrder: 1, name: 1 });
     res.json({ items: products.map(serializeProduct) });
   })

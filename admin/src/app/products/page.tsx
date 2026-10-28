@@ -43,9 +43,18 @@ export default function ProductsPage() {
   const catName = (id: string) =>
     categoriesQuery.data?.find((c) => c.id === id)?.name ?? "—";
 
-  const sorted = [...(productsQuery.data?.items ?? [])].sort(
-    (a, b) => a.displayOrder - b.displayOrder
-  );
+  // Client-side filter too — older API builds ignored categoryId/q query params.
+  const sorted = [...(productsQuery.data?.items ?? [])]
+    .filter((p) => {
+      if (categoryId && p.categoryId !== categoryId) return false;
+      if (q.trim()) {
+        const needle = q.trim().toLowerCase();
+        const hay = `${p.name} ${p.slug} ${(p.keywords ?? []).join(" ")}`.toLowerCase();
+        if (!hay.includes(needle)) return false;
+      }
+      return true;
+    })
+    .sort((a, b) => a.displayOrder - b.displayOrder);
 
   const toggleFeatured = useMutation({
     mutationFn: ({ id, featured }: { id: string; featured: boolean }) =>
