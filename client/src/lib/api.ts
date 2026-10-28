@@ -402,7 +402,8 @@ export async function placeOrder(
       {
         method: "POST",
         body: JSON.stringify(input),
-        timeoutMs: 15000,
+        // Mobile networks are slower; avoid aborting a real place mid-flight.
+        timeoutMs: 30000,
         headers: { "Idempotency-Key": key },
       }
     );
@@ -413,65 +414,10 @@ export async function placeOrder(
         : raw;
     return normalizePlaceOrderResult(payload);
   } catch (e) {
-    if (e instanceof ApiError && e.status >= 400 && e.status < 500) throw e;
+    // Never invent a local "success" order — that made phone checkouts look
+    // placed while nothing reached Mongo/admin (HB-DEMO-* ghost orders).
     apiHealthy = false;
-    const orderId = `demo-${Date.now()}`;
-    const orderNumber = `HB-DEMO-${Math.floor(Math.random() * 9000 + 1000)}`;
-    const accessToken = `demo-token-${crypto.randomUUID()}`;
-    const demoOrder: TrackedOrder = {
-      id: orderId,
-      orderNumber,
-      status: "pending",
-      type: input.type,
-      paymentMethod: input.paymentMethod,
-      paymentStatus: "unpaid",
-      customerName: input.customer.name,
-      items: input.items.map((i) => ({
-        name: `Item ${i.productId} (Development seed)`,
-        quantity: i.quantity,
-        lineTotalMinor: 0,
-        notes: i.notes,
-      })),
-      totals: {
-        subtotalMinor: 0,
-        deliveryFeeMinor: 0,
-        discountMinor: 0,
-        taxMinor: 0,
-        grandTotalMinor: 0,
-      },
-      statusHistory: [
-        {
-          status: "pending",
-          at: new Date().toISOString(),
-          note: "DEVELOPMENT FALLBACK order - not persisted to server",
-        },
-      ],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      etaNote: "Configure in admin - ETA not a real promise",
-      branchName: "Demo branch",
-      addressSummary:
-        input.type === "delivery"
-          ? input.address
-            ? `${input.address.line1}, ${input.address.area}`
-            : null
-          : "Pickup",
-    };
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem(
-        `heybrew:demo-order:${orderNumber}:${accessToken}`,
-        JSON.stringify(demoOrder)
-      );
-    }
-    return {
-      orderId,
-      orderNumber,
-      accessToken,
-      status: "pending",
-      type: input.type,
-      grandTotalMinor: 0,
-      trackUrl: `/track/${orderId}?token=${encodeURIComponent(accessToken)}&n=${encodeURIComponent(orderNumber)}`,
-    };
+    throw e;
   }
 }
 
