@@ -31,16 +31,14 @@ export function ProductCard({ product, className }: Props) {
       )}
       aria-label={`${product.name}, ${formatRs(product.basePriceMinor)}`}
     >
-      <div className="flex min-w-0 flex-1 flex-col justify-between gap-2 py-0.5">
-        <div className="space-y-1.5">
-          <h3 className="font-display text-[1.05rem] font-extrabold leading-tight text-espresso line-clamp-2 sm:text-lg">
-            {product.name}
-          </h3>
-          <p className="line-clamp-2 text-xs leading-snug text-muted sm:line-clamp-3 sm:text-sm">
-            {product.description}
-          </p>
-        </div>
-        <p className="font-display text-base font-extrabold text-espresso sm:text-lg">
+      <div className="flex min-w-0 flex-1 flex-col py-0.5">
+        <h3 className="shrink-0 font-display text-[1.05rem] font-extrabold leading-tight text-espresso line-clamp-2 sm:text-lg">
+          {product.name}
+        </h3>
+        <p className="my-auto line-clamp-2 py-1.5 text-xs leading-snug text-muted sm:line-clamp-3 sm:py-2 sm:text-sm">
+          {product.description}
+        </p>
+        <p className="shrink-0 font-display text-base font-extrabold text-espresso sm:text-lg">
           {product.variants.length > 1
             ? `from ${formatRs(product.basePriceMinor)}`
             : formatRs(product.basePriceMinor)}
