@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ArrowDown, ArrowUp, Plus } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Plus, X } from "lucide-react";
 import {
   archiveProduct,
   listCategories,
@@ -17,6 +17,17 @@ import { formatPkr } from "@/lib/money";
 import { Badge, EmptyState, PageHeader, SeedBadge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/field";
+
+function hasRealProductImage(images: { url?: string }[] | undefined): boolean {
+  if (!images?.length) return false;
+  return images.some((img) => {
+    const url = String(img.url ?? "");
+    if (!url) return false;
+    // Seed/catalog placeholders are not real uploads
+    if (url.includes("placehold.co") || url.includes("placeholder")) return false;
+    return true;
+  });
+}
 
 export default function ProductsPage() {
   const queryClient = useQueryClient();
@@ -235,6 +246,17 @@ export default function ProductsPage() {
                           Archive
                         </Button>
                       ) : null}
+                      {hasRealProductImage(p.images) ? (
+                        <Badge className="gap-1 bg-emerald-100 text-emerald-800">
+                          <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+                          Picture Uploaded
+                        </Badge>
+                      ) : (
+                        <Badge className="gap-1 bg-rose-100 text-rose-800">
+                          <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+                          Picture not uploaded
+                        </Badge>
+                      )}
                     </div>
                   </td>
                 </tr>
