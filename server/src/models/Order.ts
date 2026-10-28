@@ -136,7 +136,12 @@ const orderSchema = new Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ["cod", "card_placeholder", "wallet_placeholder"] satisfies PaymentMethod[],
+      enum: [
+        "cod",
+        "pay_at_pickup",
+        "card_placeholder",
+        "wallet_placeholder",
+      ] satisfies PaymentMethod[],
       default: "cod",
     },
     idempotencyKey: { type: String, required: true, unique: true },

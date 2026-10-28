@@ -22,6 +22,17 @@ export function errorHandler(
     return;
   }
 
+  // Mongoose CastError (e.g. demo-* ids) → 400 instead of opaque 500
+  if (
+    err &&
+    typeof err === "object" &&
+    "name" in err &&
+    (err as { name?: string }).name === "CastError"
+  ) {
+    res.status(400).json(apiError("INVALID_ID", "Invalid id in request"));
+    return;
+  }
+
   logger.error("Unhandled error", {
     message: err instanceof Error ? err.message : String(err),
     stack: err instanceof Error ? err.stack : undefined,

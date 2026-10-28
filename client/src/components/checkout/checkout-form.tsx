@@ -114,6 +114,16 @@ export function CheckoutForm() {
       setSubmitError("Your cart is empty.");
       return;
     }
+    if (
+      validated?.source === "demo" ||
+      session.branchId.startsWith("demo-") ||
+      (session.deliveryZoneId?.startsWith("demo-") ?? false)
+    ) {
+      setSubmitError(
+        "Cannot place order while offline. Refresh the page on a stable connection and try again."
+      );
+      return;
+    }
     if (isDelivery) {
       if (!values.line1 || values.line1.trim().length < 3) {
         setSubmitError("Delivery address is required.");

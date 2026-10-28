@@ -158,7 +158,9 @@ export async function priceCartItems(
 }
 
 export async function validateCart(input: CartValidateInput) {
-  const branch = await Branch.findById(input.branchId);
+  // Validate ObjectIds first — demo/local fallback IDs must not CastError → 500.
+  const branchOid = oid(input.branchId);
+  const branch = await Branch.findById(branchOid);
   if (!branch || !branch.isActive) {
     throw notFound("BRANCH_NOT_FOUND", "Branch not found");
   }
@@ -171,7 +173,7 @@ export async function validateCart(input: CartValidateInput) {
     if (!input.deliveryZoneId) {
       throw badRequest("ZONE_REQUIRED", "deliveryZoneId is required for delivery");
     }
-    const zone = await DeliveryZone.findById(input.deliveryZoneId);
+    const zone = await DeliveryZone.findById(oid(input.deliveryZoneId));
     if (!zone || !zone.isActive || String(zone.branchId) !== String(branch._id)) {
       throw badRequest("ZONE_INVALID", "Invalid delivery zone for this branch");
     }

@@ -11,7 +11,12 @@ const paymentSchema = new Schema(
     },
     method: {
       type: String,
-      enum: ["cod", "card_placeholder", "wallet_placeholder"] satisfies PaymentMethod[],
+      enum: [
+        "cod",
+        "pay_at_pickup",
+        "card_placeholder",
+        "wallet_placeholder",
+      ] satisfies PaymentMethod[],
       required: true,
     },
     status: {
