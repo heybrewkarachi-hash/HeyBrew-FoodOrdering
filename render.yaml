@@ -1,0 +1,15 @@
+# Render Blueprint — API only (client/admin stay on Vercel)
+services:
+  - type: web
+    name: heybrew-api
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm run build:render
+    startCommand: npm run start:render
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "1"
