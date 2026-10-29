@@ -18,6 +18,8 @@
     "build": "npm run build -w @heybrew/shared && npm run build -w @heybrew/server && npm run build -w @heybrew/client && npm run build -w @heybrew/admin",
     "build:shared": "npm run build -w @heybrew/shared",
     "build:server": "npm run build -w @heybrew/server",
+    "build:render": "npm install --include=dev && npm run build -w @heybrew/shared && npm run build -w @heybrew/server",
+    "start:render": "npm run start -w @heybrew/server",
     "seed": "npm run seed -w @heybrew/server",
     "test": "npm run test -w @heybrew/server",
     "test:server": "npm run test -w @heybrew/server",
